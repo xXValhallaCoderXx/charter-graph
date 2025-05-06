@@ -12,6 +12,7 @@ export async function fetchAllSystems(): Promise<System[]> {
 }
 
 export async function fetchSystemById(id: string): Promise<System> {
+  console.log("ID: ", id);
   const { data, error } = await supabase
     .from("systems")
     .select("id, name, category, parent_id")
@@ -54,22 +55,30 @@ export async function fetchAllInterfaces(): Promise<SystemInterface[]> {
 export async function fetchInterfacesBySystemIds(
   ids: string[]
 ): Promise<SystemInterface[]> {
-  const idList = ids.map((i) => `'${i}'`).join(",");
+  if (ids.length === 0) {
+    // no root, return empty list
+    return [];
+  }
+  // join IDs without quotes to match integer columns
+  const idList = ids.join(",");
   const { data, error } = await supabase
-    .from("system_interfaces")
+    .from<"system_interfaces", SystemInterface>("system_interfaces")
     .select("id, system_a_id, system_b_id, connection_type, directional")
     .or(`system_a_id.in.(${idList}),system_b_id.in.(${idList})`);
   if (error) throw error;
-  return data as SystemInterface[];
+  return data!;
 }
 
 // --- Combined Graph Fetcher ---
 export async function fetchGraph(rootId?: string): Promise<Graph> {
   if (rootId) {
     const root = await fetchSystemById(rootId);
+    console.log("Root: ", root);
     const descendants = await fetchDescendants(rootId);
+    console.log("Descendants: ", descendants);
     const nodes = [root, ...descendants];
     const ids = nodes.map((n) => n.id);
+    console.log("IDs: ", ids);
     const edges = await fetchInterfacesBySystemIds(ids);
     return { nodes, edges };
   } else {

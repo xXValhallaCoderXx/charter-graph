@@ -6,8 +6,8 @@ import {
   fetchInterfacesBySystemIds,
   updateInterface,
 } from "../slices/interface/interface.service";
-import { SystemInterface } from "../slices/interface/interface.types";
-import { QUERY_KEYS } from "../slices/query-keys";
+import { SystemInterface } from "@/shared/slices/interface/interface.types";
+import { QUERY_KEYS } from "@/shared/slices/query-keys";
 
 /**
  * Hook: fetch all interfaces for a given root (and its descendants)

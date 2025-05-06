@@ -40,9 +40,9 @@ export default function Home() {
               <SystemDetails systemId={selectedId} />
             </Card>
             <Typography variant="h3">Interfaces</Typography>
-            <Card>
+            {/* <Card>
               <InterfaceDetails />
-            </Card>
+            </Card> */}
           </section>
         </div>
       </div>

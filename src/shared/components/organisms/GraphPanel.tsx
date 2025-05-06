@@ -56,7 +56,7 @@ const GraphPanel = () => {
         onConnect={onConnect}
         connectionMode={ConnectionMode.Loose}
         onNodeClick={(e: any, node: any) => {
-          router.replace(`/?rootId=${rootId ?? ""}&selectedId=${node.id}`);
+          router.push(`/?rootId=${rootId ?? ""}&selectedId=${node.id}`);
         }}
         onNodeDoubleClick={(e: any, node: any) => {
           // re-root the graph and open the sidebar on that node
