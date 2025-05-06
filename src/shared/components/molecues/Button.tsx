@@ -1,0 +1,53 @@
+"use client";
+
+import { FC } from "react";
+
+interface IButtonProps {
+  onClick?: () => void;
+  label: string;
+  type?: "button" | "submit" | "reset";
+  disabled?: boolean;
+  variant?: "filled" | "outline"; // Added variant prop
+  size?: "small" | "medium" | "large"; // Added size prop
+}
+
+const Button: FC<IButtonProps> = ({
+  onClick,
+  label,
+  type = "button",
+  disabled = false,
+  variant = "filled",
+  size = "medium",
+}) => {
+  // Define size classes
+  const sizeClasses = {
+    small: "py-1 px-2 text-sm",
+    medium: "py-2 px-4 text-base",
+    large: "py-3 px-6 text-lg",
+  };
+
+  // Define variant classes
+  const variantClasses = {
+    filled: `bg-blue-500 text-white hover:bg-blue-600 ${
+      disabled ? "bg-gray-400 hover:bg-gray-400" : ""
+    }`,
+    outline: `bg-transparent border-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white ${
+      disabled ? "border-gray-400 text-gray-400 hover:bg-transparent" : ""
+    }`,
+  };
+
+  return (
+    <button
+      type={type}
+      className={`font-bold rounded cursor-pointer transition duration-200 ease-in-out ${
+        disabled ? "cursor-not-allowed" : ""
+      } ${sizeClasses[size]} ${variantClasses[variant]}`}
+      onClick={!disabled ? onClick : undefined}
+      disabled={disabled}
+    >
+      {label}
+    </button>
+  );
+};
+
+export default Button;

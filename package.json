@@ -6,14 +6,18 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed": "node ./src/shared/utils/seed.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4",
+    "@tanstack/react-query": "^5.75.4",
     "@xyflow/react": "^12.6.0",
+    "dotenv": "^16.5.0",
     "next": "15.3.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
