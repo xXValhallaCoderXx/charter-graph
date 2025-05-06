@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { supabase } from "@/shared/lib/supabase-client";
-import { System, SystemInterface, Graph } from "./system.types";
+import { System, Graph } from "./system.types";
+import { SystemInterface } from "@/shared/slices/interface/interface.types";
 
 export async function fetchAllSystems(): Promise<System[]> {
   const { data, error } = await supabase

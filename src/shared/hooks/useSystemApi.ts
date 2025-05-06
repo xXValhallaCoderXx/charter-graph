@@ -7,17 +7,9 @@ import {
   fetchDescendants,
   createSystemAndInterface,
 } from "@/shared/slices/system/system.service";
-import type {
-  System,
-  SystemInterface,
-} from "@/shared/slices/system/system.types";
-
-// Shared query key prefixes
-export const QUERY_KEYS = {
-  graphData: (rootId?: string) => ["graph-data", rootId] as const,
-  system: (id: string) => ["system", id] as const,
-  descendants: (id: string) => ["descendants", id] as const,
-};
+import type { System } from "@/shared/slices/system/system.types";
+import { SystemInterface } from "@/shared/slices/interface/interface.types";
+import { QUERY_KEYS } from "@/shared/slices/query-keys";
 
 // Fetch a single system
 export function useFetchSystem(id: string) {
