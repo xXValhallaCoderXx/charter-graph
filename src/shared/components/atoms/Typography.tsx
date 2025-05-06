@@ -1,13 +1,8 @@
 /* eslint-disable react/display-name */
 /* eslint-disable react/display-name */
 import React, { ElementType, forwardRef } from "react";
+import { cx } from "@/shared/lib/class-joiner";
 
-/* ---------------- tiny class joiner ---------------- */
-function cx(...parts: (string | false | null | undefined)[]) {
-  return parts.filter(Boolean).join(" ");
-}
-
-/* ---------------- design‑system maps --------------- */
 const SIZE_MAP = {
   xs: "text-xs",
   sm: "text-sm",
@@ -40,7 +35,6 @@ const VARIANT_MAP = {
   caption: { as: "span", size: "xs", fw: "normal" },
 } as const;
 
-/* ---------------- types ---------------------------- */
 type SizeKey = keyof typeof SIZE_MAP;
 type WeightKey = keyof typeof WEIGHT_MAP;
 type VariantKey = keyof typeof VARIANT_MAP;
@@ -55,18 +49,13 @@ type OwnProps<E extends ElementType> = {
 export type TypographyProps<E extends ElementType = "span"> = OwnProps<E> &
   Omit<React.ComponentPropsWithoutRef<E>, keyof OwnProps<E>>;
 
-/* ---------------------------------------------------
- * 1. Define the generic render function separately
- * -------------------------------------------------- */
 function TypographyInner<E extends ElementType = "span">(
   { as, variant, size, fw, className, children, ...rest }: TypographyProps<E>,
   ref: React.Ref<Element>
 ) {
-  /* merge preset ----------------------------------- */
   const preset = variant ? VARIANT_MAP[variant] : undefined;
   const Tag = (as || preset?.as || "span") as ElementType;
 
-  /* build classes ---------------------------------- */
   const classes = cx(
     SIZE_MAP[size ?? preset?.size ?? "md"],
     WEIGHT_MAP[fw ?? preset?.fw ?? "normal"],
@@ -80,9 +69,6 @@ function TypographyInner<E extends ElementType = "span">(
   );
 }
 
-/* ---------------------------------------------------
- * 2. Wrap it with forwardRef AFTERWARDS
- * -------------------------------------------------- */
 const Typography = forwardRef(TypographyInner) as <
   E extends ElementType = "span"
 >(

@@ -7,8 +7,8 @@ interface IButtonProps {
   label: string;
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
-  variant?: "filled" | "outline"; // Added variant prop
-  size?: "small" | "medium" | "large"; // Added size prop
+  variant?: "filled" | "outline";
+  size?: "small" | "medium" | "large";
 }
 
 const Button: FC<IButtonProps> = ({
@@ -19,14 +19,13 @@ const Button: FC<IButtonProps> = ({
   variant = "filled",
   size = "medium",
 }) => {
-  // Define size classes
+
   const sizeClasses = {
     small: "py-1 px-2 text-sm",
     medium: "py-2 px-4 text-base",
     large: "py-3 px-6 text-lg",
   };
 
-  // Define variant classes
   const variantClasses = {
     filled: `bg-blue-500 text-white hover:bg-blue-600 ${
       disabled ? "bg-gray-400 hover:bg-gray-400" : ""
