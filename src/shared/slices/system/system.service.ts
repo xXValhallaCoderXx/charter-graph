@@ -40,6 +40,7 @@ export async function fetchDescendants(rootId: string): Promise<System[]> {
   return descendants;
 }
 
+// --- Fetchers for Interfaces ---
 export async function fetchAllInterfaces(): Promise<SystemInterface[]> {
   const { data, error } = await supabase
     .from("system_interfaces")
@@ -60,7 +61,7 @@ export async function fetchInterfacesBySystemIds(
   return data as SystemInterface[];
 }
 
-
+// --- Combined Graph Fetcher ---
 export async function fetchGraph(rootId?: string): Promise<Graph> {
   if (rootId) {
     const root = await fetchSystemById(rootId);
@@ -76,4 +77,39 @@ export async function fetchGraph(rootId?: string): Promise<Graph> {
     ]);
     return { nodes, edges };
   }
+}
+
+// --- Mutators for Systems ---
+export async function createSystem(
+  name: string,
+  category: string,
+  parentId?: string
+): Promise<System> {
+  const { data, error } = await supabase
+    .from("systems")
+    .insert({ name, category, parent_id: parentId ?? null })
+    .single();
+  if (error) throw error;
+  return data as System;
+}
+
+export async function updateSystem(
+  id: string,
+  updates: Partial<Pick<System, 'name' | 'category' | 'parent_id'>>
+): Promise<System> {
+  const { data, error } = await supabase
+    .from("systems")
+    .update(updates)
+    .eq("id", id)
+    .single();
+  if (error) throw error;
+  return data as System;
+}
+
+export async function deleteSystem(id: string): Promise<void> {
+  const { error } = await supabase
+    .from("systems")
+    .delete()
+    .eq("id", id);
+  if (error) throw error;
 }

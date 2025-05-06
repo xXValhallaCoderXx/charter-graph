@@ -30,7 +30,7 @@ export default function Home() {
             className="w-full lg:w-1/3 flex flex-col gap-4"
           >
             <Typography variant="h3">System Details</Typography>
-            <SystemDetails />
+            <SystemDetails systemId="1" />
             <Typography variant="h3">Interfaces</Typography>
             <InterfaceDetails />
           </section>
