@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useFlowData } from "@/shared/hooks/useFlowGraphData";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { getLayoutedNodes } from "@/shared/lib/dagre-layout";
 import {
   ReactFlow,
@@ -20,10 +21,12 @@ import { useCallback, useEffect } from "react";
 
 const GraphPanel = () => {
   const params = useSearchParams();
-
+  const router = useRouter();
   const rootId = params.get("rootId") ?? undefined;
 
   const { data, isLoading, error } = useFlowData(rootId);
+
+  console.log("GraphPanel", data);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(data?.nodes || []);
   const [edges, setEdges, onEdgesChange] = useEdgesState(data?.edges || []);
@@ -44,7 +47,7 @@ const GraphPanel = () => {
   if (error) return <div>Error loading graph: {error.message}</div>;
 
   return (
-    <div style={{ width: "100%", height: 600 }}>
+    <div style={{ width: "100%", height: "calc(100vh - 200px)" }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -52,6 +55,13 @@ const GraphPanel = () => {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         connectionMode={ConnectionMode.Loose}
+        onNodeClick={(e: any, node: any) => {
+          router.replace(`/?rootId=${rootId ?? ""}&selectedId=${node.id}`);
+        }}
+        onNodeDoubleClick={(e: any, node: any) => {
+          // re-root the graph and open the sidebar on that node
+          router.replace(`/?rootId=${node.id}&selectedId=${node.id}`);
+        }}
         fitView
       >
         <Controls />

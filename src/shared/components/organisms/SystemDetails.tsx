@@ -4,30 +4,28 @@ import {
   useFetchDescendants,
   useRemoveChildSystem,
   useUpdateSystem,
-  //   useCreateChildSystem
+  useCreateChildSystem,
 } from "@/shared/hooks/useSystemApi";
-// import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import { FC, useState, useEffect } from "react";
+import { Button } from "@/shared/components/molecues";
 import { System } from "@/shared/slices/system/system.types";
+import { Skeleton } from "@/shared/components/atoms";
 
 interface ISystemDetailsProps {
   systemId: string;
 }
 
 const SystemDetails: FC<ISystemDetailsProps> = ({ systemId }) => {
-  // const router = useRouter();
+  const router = useRouter();
   // Queries
-  const {
-    data: system,
-    isLoading: loadingSys,
-    error: errSys,
-  } = useFetchSystem(systemId);
-  const { data: children = [], isLoading: loadingDesc } =
+  const { data: system, isLoading: loadingSys } = useFetchSystem(systemId);
+  const { data: children = [], isLoading: isLoadingDescendants } =
     useFetchDescendants(systemId);
 
   // Mutations
   const updateSystemM = useUpdateSystem(systemId);
-  //   const createChildM = useCreateChildSystem(systemId);
+  const createChildM = useCreateChildSystem(systemId);
   const removeChildM = useRemoveChildSystem(systemId);
 
   // Local form state
@@ -40,62 +38,64 @@ const SystemDetails: FC<ISystemDetailsProps> = ({ systemId }) => {
     }
   }, [system]);
 
-  if (loadingSys || loadingDesc) return <div>Loading…</div>;
-  if (errSys || !system) return <div>Error loading system</div>;
-
   // Handlers for onBlur and actions
   const handleNameBlur = () => {
-    if (name !== system.name) {
+    if (name !== system?.name) {
       updateSystemM.mutate({ name });
     }
   };
 
   const handleCategoryBlur = () => {
-    if (category !== system.category) {
+    if (category !== system?.category) {
       updateSystemM.mutate({ category });
     }
   };
 
   const handleDelete = () => {
     removeChildM.mutate(systemId);
+    setCategory("");
+    setName("");
+    router.replace(`/`);
+    // router.replace(`/?rootId=${system.parent_id}`, { shallow: true });
   };
 
-  //   const handleAddChild = (childName: string) => {
-  //     if (childName.trim()) {
-  //       createChildM.mutate(childName.trim());
-  //     }
-  //   };
+  const handleAddChild = (childName: string) => {
+    if (childName.trim()) {
+      createChildM.mutate(childName.trim());
+    }
+  };
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-2">System Details</h2>
-
       <label className="block mb-2">
         <span className="text-sm">Name</span>
-        <input
-          className="mt-1 w-full border rounded p-1"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onBlur={handleNameBlur}
-        />
+        <Skeleton isLoading={loadingSys || isLoadingDescendants}>
+          <input
+            className="mt-1 w-full border rounded p-1"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onBlur={handleNameBlur}
+          />
+        </Skeleton>
       </label>
 
       <label className="block mb-4">
         <span className="text-sm">Category</span>
-        <input
-          className="mt-1 w-full border rounded p-1"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          onBlur={handleCategoryBlur}
-        />
+        <Skeleton isLoading={loadingSys || isLoadingDescendants}>
+          <input
+            className="mt-1 w-full border rounded p-1"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            onBlur={handleCategoryBlur}
+          />
+        </Skeleton>
       </label>
 
-      <button
-        className="mb-4 bg-red-500 text-white px-3 py-1 rounded"
+      <Button
+        disabled={loadingSys || isLoadingDescendants}
         onClick={handleDelete}
-      >
-        Delete System
-      </button>
+        label="Delete System"
+      />
 
       <hr className="my-4" />
 
@@ -113,12 +113,12 @@ const SystemDetails: FC<ISystemDetailsProps> = ({ systemId }) => {
             >
               {child.name}
             </span>
-            <button
-              className="text-sm text-red-500"
+            <Button
+              size="small"
+              variant="outline"
               //   onClick={() => removeChildM.mutate(child.id)}
-            >
-              Remove
-            </button>
+              label="Remove"
+            />
           </li>
         ))}
       </ul>
@@ -126,26 +126,26 @@ const SystemDetails: FC<ISystemDetailsProps> = ({ systemId }) => {
       <div className="flex gap-2">
         <input
           placeholder="New child name"
+          disabled={loadingSys || isLoadingDescendants}
           className="flex-1 border rounded p-1"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              //   createChildM.mutate((e.target as HTMLInputElement).value);
+              handleAddChild((e.target as HTMLInputElement).value);
               (e.target as HTMLInputElement).value = "";
             }
           }}
         />
-        <button
-          className="bg-green-500 text-white px-3 py-1 rounded"
+        <Button
+          label="Add"
+          disabled={loadingSys || isLoadingDescendants}
           onClick={() => {
             const input = document.querySelector(
               'input[placeholder="New child name"]'
             ) as HTMLInputElement;
-            // createChildM.mutate(input.value.trim());
+            handleAddChild(input.value.trim());
             input.value = "";
           }}
-        >
-          Add
-        </button>
+        />
       </div>
     </div>
   );

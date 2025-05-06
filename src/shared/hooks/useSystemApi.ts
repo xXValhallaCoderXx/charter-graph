@@ -9,21 +9,34 @@ import {
 } from "@/shared/slices/system/system.service";
 import type { System } from "@/shared/slices/system/system.types";
 
+// Shared query key prefixes
 export const QUERY_KEYS = {
-  graph: ["graph"] as const,
+  graphData: ["graph-data"] as const,
   system: (id: string) => ["system", id] as const,
   descendants: (id: string) => ["descendants", id] as const,
 };
 
+// Fetch a single system
 export function useFetchSystem(id: string) {
   return useQuery<System, PostgrestError>({
     queryKey: QUERY_KEYS.system(id),
     queryFn: () => fetchSystemById(id),
+    enabled: !!id, // skip query if no id provided
     staleTime: 30_000,
   });
 }
 
-// Update system fields
+// Fetch direct child systems
+export function useFetchDescendants(id: string) {
+  return useQuery<System[], PostgrestError>({
+    queryKey: QUERY_KEYS.descendants(id),
+    queryFn: () => fetchDescendants(id),
+     enabled: !!id, // skip query if no id provided
+    staleTime: 30_000,
+  });
+}
+
+// Update a system's name/category and then invalidate relevant caches
 export function useUpdateSystem(id: string) {
   const qc = useQueryClient();
   return useMutation<
@@ -32,35 +45,39 @@ export function useUpdateSystem(id: string) {
     Partial<Pick<System, "name" | "category">>
   >({
     mutationFn: (patch) => updateSystem(id, patch),
-    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEYS.system(id) }),
+    onSuccess: () => {
+      // Refresh system details
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.system(id) });
+      // Refresh all graph data (full or subtree)
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.graphData });
+    },
   });
 }
 
-// Create a new child system
+// Create a new child under a given parent system
 export function useCreateChildSystem(parentId: string) {
   const qc = useQueryClient();
   return useMutation<System, PostgrestError, string>({
     mutationFn: (name) => createSystem(name, "service", parentId),
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: QUERY_KEYS.descendants(parentId) }),
+    onSuccess: () => {
+      // Refresh child list
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.descendants(parentId) });
+      // Refresh graph to include new node
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.graphData });
+    },
   });
 }
 
-// Remove an existing child system
+// Remove a child system and update caches
 export function useRemoveChildSystem(parentId: string) {
   const qc = useQueryClient();
   return useMutation<void, PostgrestError, string>({
     mutationFn: (childId) => deleteSystem(childId),
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: QUERY_KEYS.descendants(parentId) }),
-  });
-}
-
-// Fetch all descendants of a system
-export function useFetchDescendants(id: string) {
-  return useQuery<System[], PostgrestError>({
-    queryKey: QUERY_KEYS.descendants(id),
-    queryFn: () => fetchDescendants(id),
-    staleTime: 30_000,
+    onSuccess: () => {
+      // Refresh child list
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.descendants(parentId) });
+      // Refresh graph to remove node
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.graphData });
+    },
   });
 }

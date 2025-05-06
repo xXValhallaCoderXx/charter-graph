@@ -1,5 +1,6 @@
 'use client';
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   AppHeader,
@@ -7,10 +8,13 @@ import {
   InterfaceDetails,
   SystemDetails,
 } from "@/shared/components/organisms";
-import { Typography } from "@/shared/components/atoms";
+import { Typography, Card } from "@/shared/components/atoms";
 
 export default function Home() {
   const [qc] = useState(() => new QueryClient());
+  const params = useSearchParams();
+
+  const selectedId = params.get("selectedId") ?? "";
   return (
     <QueryClientProvider client={qc}>
       <div>
@@ -23,16 +27,22 @@ export default function Home() {
             <div className="flex justify-between items-center">
               <Typography variant="h3">Graph Diagram</Typography>
             </div>
-            <GraphPanel />
+            <Card>
+              <GraphPanel />
+            </Card>
           </section>
           <section
             id="system-details"
             className="w-full lg:w-1/3 flex flex-col gap-4"
           >
             <Typography variant="h3">System Details</Typography>
-            <SystemDetails systemId="1" />
+            <Card>
+              <SystemDetails systemId={selectedId} />
+            </Card>
             <Typography variant="h3">Interfaces</Typography>
-            <InterfaceDetails />
+            <Card>
+              <InterfaceDetails />
+            </Card>
           </section>
         </div>
       </div>
