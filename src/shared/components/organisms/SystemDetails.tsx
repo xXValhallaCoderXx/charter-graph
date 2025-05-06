@@ -61,6 +61,7 @@ const SystemDetails: FC<ISystemDetailsProps> = ({ systemId }) => {
 
   const handleAddChild = (childName: string) => {
     if (childName.trim()) {
+      console.log("ADD CHILD");
       createChildM.mutate(childName.trim());
     }
   };
@@ -103,21 +104,12 @@ const SystemDetails: FC<ISystemDetailsProps> = ({ systemId }) => {
       <ul className="space-y-1 mb-4">
         {children.map((child: System) => (
           <li key={child.id} className="flex justify-between">
-            <span
-              className="text-blue-600 cursor-pointer"
-              //   onClick={() =>
-              //     router.push(`/?rootId=${systemId}&selectedId=${child.id}`, {
-              //       shallow: true,
-              //     })
-              //   }
-            >
-              {child.name}
-            </span>
+            <span className="text-blue-600 cursor-pointer">{child.name}</span>
             <Button
               size="small"
               variant="outline"
-              //   onClick={() => removeChildM.mutate(child.id)}
               label="Remove"
+              onClick={() => removeChildM.mutate(child.id)}
             />
           </li>
         ))}
@@ -136,7 +128,7 @@ const SystemDetails: FC<ISystemDetailsProps> = ({ systemId }) => {
           }}
         />
         <Button
-          label="Add"
+          label="AddSS"
           disabled={loadingSys || isLoadingDescendants}
           onClick={() => {
             const input = document.querySelector(

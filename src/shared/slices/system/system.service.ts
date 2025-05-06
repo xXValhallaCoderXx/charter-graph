@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { supabase } from "@/shared/lib/supabase-client";
 import { System, SystemInterface, Graph } from "./system.types";
 
@@ -95,7 +96,7 @@ export async function createSystem(
 
 export async function updateSystem(
   id: string,
-  updates: Partial<Pick<System, 'name' | 'category' | 'parent_id'>>
+  updates: Partial<Pick<System, "name" | "category" | "parent_id">>
 ): Promise<System> {
   const { data, error } = await supabase
     .from("systems")
@@ -107,9 +108,34 @@ export async function updateSystem(
 }
 
 export async function deleteSystem(id: string): Promise<void> {
-  const { error } = await supabase
-    .from("systems")
-    .delete()
-    .eq("id", id);
+  const { error } = await supabase.from("systems").delete().eq("id", id);
   if (error) throw error;
+}
+
+export async function createSystemAndInterface(
+  name: string,
+  category: string,
+  parentId: string
+): Promise<{ system: System; iface: SystemInterface }> {
+  console.log("Creating system and interface");
+  const { data: system, error: err1 } = await supabase
+    .from("systems")
+    .insert({ name, category, parent_id: parentId })
+    .select("id, name, category, parent_id")
+    .single();
+  if (err1) throw err1;
+
+  const { data: iface, error: err2 } = await supabase
+    .from("system_interfaces")
+    .insert({
+      system_a_id: parentId,
+
+      system_b_id: system.id,
+      connection_type: "hierarchy",
+      directional: false,
+    })
+    .single();
+  if (err2) throw err2;
+
+  return { system, iface };
 }
