@@ -17,16 +17,15 @@ import {
   BackgroundVariant,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 const GraphPanel = () => {
   const params = useSearchParams();
   const router = useRouter();
+  const isMounted = useRef(false);
   const rootId = params.get("rootId") ?? undefined;
 
   const { data, isLoading, error } = useFlowData(rootId);
-
-  console.log("GraphPanel", data);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(data?.nodes || []);
   const [edges, setEdges, onEdgesChange] = useEdgesState(data?.edges || []);
@@ -43,11 +42,11 @@ const GraphPanel = () => {
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
-  if (isLoading) return <div>Loading graph…</div>;
+  if (isLoading && !isMounted) return <div>Loading graph…</div>;
   if (error) return <div>Error loading graph: {error.message}</div>;
-
+  isMounted.current = true;
   return (
-    <div style={{ width: "100%", height: "calc(100vh - 200px)" }}>
+    <div style={{ width: "100%", height: "100%" }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -56,7 +55,7 @@ const GraphPanel = () => {
         onConnect={onConnect}
         connectionMode={ConnectionMode.Loose}
         onNodeClick={(e: any, node: any) => {
-          router.push(`/?rootId=${rootId ?? ""}&selectedId=${node.id}`);
+          router.replace(`/?rootId=${rootId ?? ""}&selectedId=${node.id}`);
         }}
         onNodeDoubleClick={(e: any, node: any) => {
           // re-root the graph and open the sidebar on that node
@@ -72,7 +71,19 @@ const GraphPanel = () => {
           position="top-right"
           className="bg-white p-4 rounded-md shadow-md"
         >
-          Add Node
+          {rootId ? (
+            <button
+              onClick={() => {
+                // clear rootId & selectedId → go back to full graph
+                router.replace("/");
+              }}
+              className="text-blue-600 hover:underline"
+            >
+              ← Back to Root
+            </button>
+          ) : (
+            <span className="font-medium">Full Graph</span>
+          )}
         </Panel>
       </ReactFlow>
     </div>

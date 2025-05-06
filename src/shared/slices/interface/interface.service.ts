@@ -33,11 +33,20 @@ export async function fetchInterfaceById(id: string): Promise<SystemInterface> {
 export async function fetchInterfacesBySystemIds(
   ids: string[]
 ): Promise<SystemInterface[]> {
-  const idList = ids.map((i) => `'${i}'`).join(",");
+  // If there’s no rootId (or no ids), don’t hit the API at all
+  if (ids.length === 0) {
+    return [];
+  }
+
+  // Convert the string IDs to numbers and join them into a comma list
+  const idList = ids.map((i) => Number(i)).join(",");
+
+  // Now filter by integer IN (…) with no quotes
   const { data, error } = await supabase
     .from<"system_interfaces", SystemInterface>("system_interfaces")
     .select("id, system_a_id, system_b_id, connection_type, directional")
     .or(`system_a_id.in.(${idList}),system_b_id.in.(${idList})`);
+
   if (error) throw error;
   return data!;
 }

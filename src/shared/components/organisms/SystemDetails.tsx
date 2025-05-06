@@ -10,7 +10,13 @@ import { useRouter } from "next/navigation";
 import { FC, useState, useEffect } from "react";
 import { Button } from "@/shared/components/molecues";
 import { System } from "@/shared/slices/system/system.types";
-import { Skeleton } from "@/shared/components/atoms";
+import {
+  Skeleton,
+  Typography,
+  Input,
+  ActionIcon,
+} from "@/shared/components/atoms";
+import { IconTrash } from "@tabler/icons-react";
 
 interface ISystemDetailsProps {
   systemId: string;
@@ -67,77 +73,97 @@ const SystemDetails: FC<ISystemDetailsProps> = ({ systemId }) => {
   };
 
   return (
-    <div>
-      <label className="block mb-2">
-        <span className="text-sm">Name</span>
-        <Skeleton isLoading={loadingSys || isLoadingDescendants}>
-          <input
-            className="mt-1 w-full border rounded p-1"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            onBlur={handleNameBlur}
-          />
-        </Skeleton>
-      </label>
+    <div className="h-[100%]">
+      <div className="flex flex-col md:flex-row gap-4 mb-4  ">
+        <label className="block w-full md:w-1/2">
+          <Typography as="span" size="sm" fw="semibold">
+            Name
+          </Typography>
+          <Skeleton isLoading={loadingSys || isLoadingDescendants}>
+            <Input
+              value={name}
+              disabled={!systemId}
+              onChange={(e) => setName(e.target.value)}
+              onBlur={handleNameBlur}
+            />
+          </Skeleton>
+        </label>
 
-      <label className="block mb-4">
-        <span className="text-sm">Category</span>
-        <Skeleton isLoading={loadingSys || isLoadingDescendants}>
-          <input
-            className="mt-1 w-full border rounded p-1"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            onBlur={handleCategoryBlur}
-          />
-        </Skeleton>
-      </label>
-
-      <Button
-        disabled={loadingSys || isLoadingDescendants}
-        onClick={handleDelete}
-        label="Delete System"
-      />
+        <label className="block w-full md:w-1/2">
+          <Typography as="span" size="sm" fw="semibold">
+            Category
+          </Typography>
+          <Skeleton isLoading={loadingSys || isLoadingDescendants}>
+            <Input
+              value={category}
+              disabled={!systemId}
+              onChange={(e) => setCategory(e.target.value)}
+              onBlur={handleCategoryBlur}
+            />
+          </Skeleton>
+        </label>
+        <div className="flex   items-end">
+          <ActionIcon
+            size="lg"
+            onClick={handleDelete}
+            disabled={loadingSys || isLoadingDescendants || !systemId}
+            variant="outline"
+            rounded={false}
+          >
+            <IconTrash color="red" />
+          </ActionIcon>
+        </div>
+      </div>
 
       <hr className="my-4" />
 
-      <h3 className="font-medium mb-2">Child Systems</h3>
-      <ul className="space-y-1 mb-4">
-        {children.map((child: System) => (
-          <li key={child.id} className="flex justify-between">
-            <span className="text-blue-600 cursor-pointer">{child.name}</span>
-            <Button
-              size="small"
-              variant="outline"
-              label="Remove"
-              onClick={() => removeChildM.mutate(child.id)}
-            />
-          </li>
-        ))}
-      </ul>
+      <div className="flex flex-col h-full ">
+        <Typography variant="body" fw="semibold">
+          Child systems ({children.length})
+        </Typography>
+        <div className="flex-1 overflow-y-auto mb-4 pr-1 min-h-[80px] max-h-[21vh]">
+          <ul className="flex flex-col gap-1">
+            {children.map((child: System) => (
+              <li key={child.id} className="flex justify-between py-1">
+                <span className="text-blue-600 cursor-pointer">
+                  {child.name}
+                </span>
+                <Button
+                  size="xs"
+                  variant="outline"
+                  label="Remove"
+                  onClick={() => removeChildM.mutate(child.id)}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
 
-      <div className="flex gap-2">
-        <input
-          placeholder="New child name"
-          disabled={loadingSys || isLoadingDescendants}
-          className="flex-1 border rounded p-1"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleAddChild((e.target as HTMLInputElement).value);
-              (e.target as HTMLInputElement).value = "";
-            }
-          }}
-        />
-        <Button
-          label="AddSS"
-          disabled={loadingSys || isLoadingDescendants}
-          onClick={() => {
-            const input = document.querySelector(
-              'input[placeholder="New child name"]'
-            ) as HTMLInputElement;
-            handleAddChild(input.value.trim());
-            input.value = "";
-          }}
-        />
+        <div className="flex gap-2">
+          <Input
+            placeholder="Enter a new system name"
+            disabled={loadingSys || isLoadingDescendants || !systemId}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleAddChild((e.target as HTMLInputElement).value);
+                (e.target as HTMLInputElement).value = "";
+              }
+            }}
+          />
+          <div className="w-[180px] ">
+            <Button
+              label="Add System"
+              disabled={loadingSys || isLoadingDescendants || !systemId}
+              onClick={() => {
+                const input = document.querySelector(
+                  'input[placeholder="Enter a new system name"]'
+                ) as HTMLInputElement;
+                handleAddChild(input.value.trim());
+                input.value = "";
+              }}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

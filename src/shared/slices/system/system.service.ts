@@ -71,25 +71,43 @@ export async function fetchInterfacesBySystemIds(
 
 // --- Combined Graph Fetcher ---
 export async function fetchGraph(rootId?: string): Promise<Graph> {
-  if (rootId) {
-    const root = await fetchSystemById(rootId);
-    console.log("Root: ", root);
-    const descendants = await fetchDescendants(rootId);
-    console.log("Descendants: ", descendants);
-    const nodes = [root, ...descendants];
-    const ids = nodes.map((n) => n.id);
-    console.log("IDs: ", ids);
-    const edges = await fetchInterfacesBySystemIds(ids);
-    return { nodes, edges };
-  } else {
+  if (!rootId) {
     const [nodes, edges] = await Promise.all([
       fetchAllSystems(),
       fetchAllInterfaces(),
     ]);
     return { nodes, edges };
   }
-}
 
+  // 1) Root
+  const root = await fetchSystemById(rootId);
+
+  // 2) Level 1 children
+  const { data: children = [] as System[], error: childrenErr } = await supabase
+    .from("systems")
+    .select("id, name, category, parent_id")
+    .eq("parent_id", rootId);
+  if (childrenErr) throw childrenErr;
+
+  // 3) Level 2 grandchildren
+  const childIds = children?.map((c) => c.id);
+  let grandchildren: System[] = [];
+  if (childIds?.length) {
+    const { data: grandData = [], error: grandErr } = await supabase
+      .from("systems")
+      .select("id, name, category, parent_id")
+      .in("parent_id", childIds);
+    if (grandErr) throw grandErr;
+    grandchildren = grandData as System[];
+  }
+
+  // 4) Combine and fetch interfaces for those IDs
+  const nodes = [root, ...(children || []), ...grandchildren];
+  const ids = nodes.map((n) => n.id);
+  const edges = await fetchInterfacesBySystemIds(ids);
+
+  return { nodes, edges };
+}
 // --- Mutators for Systems ---
 export async function createSystem(
   name: string,

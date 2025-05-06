@@ -19,9 +19,10 @@ export default function Home() {
     <QueryClientProvider client={qc}>
       <div>
         <AppHeader />
-        <div className="flex flex-col lg:flex-row p-8 gap-8 ">
+        <div className="flex flex-col lg:flex-row p-6 gap-8 ">
           <section
             id="flow-diagram "
+            style={{ height: "calc(100vh - 120px)" }}
             className="w-full lg:w-2/3 xl:w-5/6 flex gap-4 flex-col"
           >
             <div className="flex justify-between items-center">
@@ -40,9 +41,9 @@ export default function Home() {
               <SystemDetails systemId={selectedId} />
             </Card>
             <Typography variant="h3">Interfaces</Typography>
-            {/* <Card>
+            <Card>
               <InterfaceDetails />
-            </Card> */}
+            </Card>
           </section>
         </div>
       </div>

@@ -8,7 +8,7 @@ interface IButtonProps {
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
   variant?: "filled" | "outline";
-  size?: "small" | "medium" | "large";
+  size?: "xs" | "small" | "medium" | "large";
 }
 
 const Button: FC<IButtonProps> = ({
@@ -19,11 +19,11 @@ const Button: FC<IButtonProps> = ({
   variant = "filled",
   size = "medium",
 }) => {
-
   const sizeClasses = {
-    small: "py-1 px-2 text-sm",
-    medium: "py-2 px-4 text-base",
-    large: "py-3 px-6 text-lg",
+    xs: "py-1 px-2 text-xs h-6",
+    small: "py-1 px-2 text-sm h-8",
+    medium: "py-2 px-4 text-base h-10",
+    large: "py-3 px-6 text-lg h-12",
   };
 
   const variantClasses = {

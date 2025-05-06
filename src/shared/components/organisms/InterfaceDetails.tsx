@@ -7,6 +7,8 @@ import {
   useUpdateInterface,
   useDeleteInterface,
 } from "@/shared/hooks/useInterfaceApi";
+import { Button } from "@/shared/components/molecues";
+import { Typography, Input, Skeleton } from "@/shared/components/atoms";
 import { SystemInterface } from "@/shared/slices/interface/interface.types";
 
 const InterfaceDetails = () => {
@@ -14,7 +16,7 @@ const InterfaceDetails = () => {
 
   const rootId = params.get("rootId") ?? undefined;
 
-  const { data: ifaces = [] } = useFetchInterfaces(rootId);
+  const { data: ifaces = [], isLoading } = useFetchInterfaces(rootId);
   const createM = useCreateInterface(rootId);
   const updateM = useUpdateInterface(rootId);
   const deleteM = useDeleteInterface(rootId);
@@ -25,7 +27,6 @@ const InterfaceDetails = () => {
 
   return (
     <div>
-      <h3 className="text-xl font-semibold mb-2">Interfaces</h3>
       <ul className="space-y-2">
         {ifaces.map((iface: SystemInterface) => (
           <li key={iface.id} className="flex justify-between items-center">
@@ -59,19 +60,39 @@ const InterfaceDetails = () => {
       </ul>
 
       <div className="mt-4 border-t pt-4 space-y-2">
-        <h4 className="font-medium">Add New Interface</h4>
-        <input
-          placeholder="Connection type"
-          className="block w-full border rounded p-1"
-          value={newType}
-          onChange={(e) => setNewType(e.target.value)}
-        />
-        <input
-          placeholder="Other system ID"
-          className="block w-full border rounded p-1"
-          value={newOther}
-          onChange={(e) => setNewOther(e.target.value)}
-        />
+        <Typography variant="body" fw="semibold">
+          Add New Interface
+        </Typography>
+        <label className="block w-full md:w-1/2">
+          <Typography as="span" size="sm" fw="semibold">
+            Name
+          </Typography>
+          <Skeleton isLoading={isLoading}>
+            <Input
+              disabled={!rootId}
+              placeholder="Connection type"
+              className="block w-full border rounded p-1"
+              value={newType}
+              onChange={(e) => setNewType(e.target.value)}
+            />
+          </Skeleton>
+        </label>
+
+        <label className="block w-full md:w-1/2">
+          <Typography as="span" size="sm" fw="semibold">
+            Other System ID (Optional )
+          </Typography>
+          <Skeleton isLoading={isLoading}>
+            <Input
+              disabled={!rootId}
+              placeholder="Other system ID"
+              className="block w-full border rounded p-1"
+              value={newOther}
+              onChange={(e) => setNewOther(e.target.value)}
+            />
+          </Skeleton>
+        </label>
+
         <label className="flex items-center gap-2">
           <input
             type="checkbox"

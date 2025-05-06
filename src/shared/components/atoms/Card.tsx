@@ -8,7 +8,7 @@ interface ICardProps {
 const Card: FC<ICardProps> = ({ children, className }) => {
   return (
     <div
-      className={`${className} rounded-xl overflow-hidden shadow-md bg-white p-4`}
+      className={`${className} rounded-xl overflow-hidden shadow-md bg-white p-6 h-[100%]`}
     >
       {children}
     </div>
