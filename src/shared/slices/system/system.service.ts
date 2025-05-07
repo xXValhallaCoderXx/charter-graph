@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { supabase } from "@/shared/lib/supabase-client";
 import { System, Graph } from "./system.types";
 import { SystemInterface } from "@/shared/slices/interface/interface.types";
@@ -42,7 +41,6 @@ export async function fetchDescendants(rootId: string): Promise<System[]> {
 
   return descendants;
 }
-
 
 export async function fetchAllInterfaces(): Promise<SystemInterface[]> {
   const { data, error } = await supabase

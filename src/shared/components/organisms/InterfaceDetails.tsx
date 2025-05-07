@@ -7,16 +7,17 @@ import {
   useUpdateInterface,
   useDeleteInterface,
 } from "@/shared/hooks/useInterfaceApi";
+import { useSearchParams } from "next/navigation";
 import { Button, Select } from "@/shared/components/molecues";
 import { Typography, Input, Skeleton } from "@/shared/components/atoms";
 import { SystemInterface } from "@/shared/slices/interface/interface.types";
 import { useFlowData } from "@/shared/hooks/useFlowGraphData";
 
-interface IInterfaceDetailsProps {
-  systemId: string;
-}
 
-const InterfaceDetails = ({ systemId }: IInterfaceDetailsProps) => {
+
+const InterfaceDetails = () => {
+  const params = useSearchParams();
+  const systemId = params.get("selectedId") ?? "";
   const { data: graph } = useFlowData(systemId);
 
   const { data: ifaces = [], isLoading } = useFetchInterfaces(systemId);

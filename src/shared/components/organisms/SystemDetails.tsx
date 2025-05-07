@@ -6,7 +6,7 @@ import {
   useUpdateSystem,
   useCreateChildSystem,
 } from "@/shared/hooks/useSystemApi";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FC, useState, useEffect } from "react";
 import { Button } from "@/shared/components/molecues";
 import { System } from "@/shared/slices/system/system.types";
@@ -18,13 +18,12 @@ import {
 } from "@/shared/components/atoms";
 import { IconTrash } from "@tabler/icons-react";
 
-interface ISystemDetailsProps {
-  systemId: string;
-}
-
-const SystemDetails: FC<ISystemDetailsProps> = ({ systemId }) => {
+const SystemDetails: FC = () => {
   const router = useRouter();
- 
+
+  const params = useSearchParams();
+  const systemId = params.get("selectedId") ?? "";
+
   const { data: system, isLoading: loadingSys } = useFetchSystem(systemId);
   const { data: children = [], isLoading: isLoadingDescendants } =
     useFetchDescendants(systemId);

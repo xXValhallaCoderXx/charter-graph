@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable @typescript-eslint/no-var-requires */
+
+
 require('dotenv').config();
 const { createClient } = require('@supabase/supabase-js');
 

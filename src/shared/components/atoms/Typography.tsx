@@ -1,5 +1,3 @@
-/* eslint-disable react/display-name */
-/* eslint-disable react/display-name */
 import React, { ElementType, forwardRef } from "react";
 import { cx } from "@/shared/lib/class-joiner";
 

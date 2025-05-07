@@ -1,20 +1,26 @@
 'use client';
-import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, Suspense } from "react";
+import dynamic from "next/dynamic";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  AppHeader,
-  GraphPanel,
-  InterfaceDetails,
-  SystemDetails,
-} from "@/shared/components/organisms";
+import { AppHeader } from "@/shared/components/organisms";
 import { Typography, Card } from "@/shared/components/atoms";
+
+const GraphPanel = dynamic(
+  () => import("@/shared/components/organisms/GraphPanel"),
+  { ssr: false }
+);
+const SystemDetails = dynamic(
+  () => import("@/shared/components/organisms/SystemDetails"),
+  { ssr: false }
+);
+const InterfaceDetails = dynamic(
+  () => import("@/shared/components/organisms/InterfaceDetails"),
+  { ssr: false }
+);
 
 export default function Home() {
   const [qc] = useState(() => new QueryClient());
-  const params = useSearchParams();
 
-  const selectedId = params.get("selectedId") ?? "";
   return (
     <QueryClientProvider client={qc}>
       <div>
@@ -29,7 +35,9 @@ export default function Home() {
               <Typography variant="h3">Graph Diagram</Typography>
             </div>
             <Card>
-              <GraphPanel />
+              <Suspense fallback={<div className="p-4">Loading graph…</div>}>
+                <GraphPanel />
+              </Suspense>
             </Card>
           </section>
           <section
@@ -38,11 +46,17 @@ export default function Home() {
             className="w-full lg:w-1/3 flex flex-col gap-6 pt-12"
           >
             <Card>
-              <SystemDetails systemId={selectedId} />
+              <Suspense fallback={<div className="p-4">Loading system…</div>}>
+                <SystemDetails />
+              </Suspense>
             </Card>
 
             <Card>
-              <InterfaceDetails systemId={selectedId} />
+              <Suspense
+                fallback={<div className="p-4">Loading interfaces…</div>}
+              >
+                <InterfaceDetails />
+              </Suspense>
             </Card>
           </section>
         </div>
