@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useMemo } from "react";
 import { useFetchInterfaces2 } from "@/shared/hooks/useInterfaceApi";
 import { useSearchParams } from "next/navigation";
 import { Typography } from "@/shared/components/atoms";

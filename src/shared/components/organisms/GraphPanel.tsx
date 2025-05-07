@@ -72,11 +72,11 @@ const GraphPanel = () => {
       createInterfaceM.mutate({
         system_a_id: params.source,
         system_b_id: params.target,
-        connection_type: "dependency", // or open a dialog to pick type
-        directional: false, // or decide based on a modifier key
+        connection_type: "default",
+        directional: false,
       });
     },
-    [setEdges]
+    [setEdges, createInterfaceM]
   );
   if (isLoading && !isMounted) return <div>Loading graph…</div>;
   if (error) return <div>Error loading graph: {error.message}</div>;
