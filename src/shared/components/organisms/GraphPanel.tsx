@@ -19,6 +19,7 @@ import {
   BackgroundVariant,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { useCreateInterface } from "@/shared/hooks/useInterfaceApi";
 import { IconArrowBack } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef } from "react";
 
@@ -27,46 +28,54 @@ const GraphPanel = () => {
   const router = useRouter();
   const isMounted = useRef(false);
   const rootId = params.get("rootId") ?? undefined;
-    const selectedId = params.get("selectedId") ?? undefined;
-    const prevRoot = useRef<string | undefined>(rootId);
-    const { data, isLoading, error } = useFlowData(rootId);
+  const selectedId = params.get("selectedId") ?? undefined;
+  const prevRoot = useRef<string | undefined>(rootId);
+  const { data, isLoading, error } = useFlowData(rootId);
+  const createInterfaceM = useCreateInterface();
+  const [nodes, setNodes, onNodesChange] = useNodesState(data?.nodes || []);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(data?.edges || []);
 
-    const [nodes, setNodes, onNodesChange] = useNodesState(data?.nodes || []);
-    const [edges, setEdges, onEdgesChange] = useEdgesState(data?.edges || []);
+  useEffect(() => {
+    if (!data) return;
 
-    useEffect(() => {
-      if (!data) return;
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedNodes(
+      data.nodes,
+      data.edges,
+      selectedId
+    );
 
-      const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedNodes(
-        data.nodes,
-        data.edges,
-        selectedId
+    setEdges(layoutedEdges);
+
+    // 3) Merge positions but use layoutedNodes instead of fullLayout
+    setNodes((currentNodes) => {
+      // if the root changed, just throw away all old positions
+      if (prevRoot.current !== rootId) {
+        prevRoot.current = rootId;
+        return layoutedNodes;
+      }
+
+      // otherwise preserve the old positions for existing nodes
+      const posMap = Object.fromEntries(
+        currentNodes.map((n) => [n.id, n.position])
       );
 
-      setEdges(layoutedEdges);
-
-      // 3) Merge positions but use layoutedNodes instead of fullLayout
-      setNodes((currentNodes) => {
-        // if the root changed, just throw away all old positions
-        if (prevRoot.current !== rootId) {
-          prevRoot.current = rootId;
-          return layoutedNodes;
-        }
-
-        // otherwise preserve the old positions for existing nodes
-        const posMap = Object.fromEntries(
-          currentNodes.map((n) => [n.id, n.position])
-        );
-
-        return layoutedNodes.map((n) => ({
-          ...n,
-          position: posMap[n.id] ?? n.position,
-        }));
-      });
-    }, [data, rootId, selectedId, setNodes, setEdges]);
+      return layoutedNodes.map((n) => ({
+        ...n,
+        position: posMap[n.id] ?? n.position,
+      }));
+    });
+  }, [data, rootId, selectedId, setNodes, setEdges]);
 
   const onConnect = useCallback(
-    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
+    (params: Connection) => {
+      setEdges((eds) => addEdge(params, eds));
+      createInterfaceM.mutate({
+        system_a_id: params.source,
+        system_b_id: params.target,
+        connection_type: "dependency", // or open a dialog to pick type
+        directional: false, // or decide based on a modifier key
+      });
+    },
     [setEdges]
   );
   if (isLoading && !isMounted) return <div>Loading graph…</div>;

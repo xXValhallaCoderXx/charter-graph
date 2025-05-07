@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { supabase } from "@/shared/lib/supabase-client";
 import { SystemInterface } from "./interface.types";
 
@@ -43,13 +44,27 @@ export async function fetchInterfacesBySystemIds(
 export async function createInterface(
   payload: NewInterface
 ): Promise<SystemInterface> {
+  let { system_a_id, system_b_id, connection_type, directional } = payload;
+
+  // If it's undirected, enforce system_a_id < system_b_id
+  if (!directional) {
+    if (system_a_id > system_b_id) {
+      [system_a_id, system_b_id] = [system_b_id, system_a_id];
+    }
+  }
+
   const { data, error } = await supabase
     .from("system_interfaces")
-    .insert(payload)
-    .select("id, system_a_id, system_b_id, connection_type, directional")
+    .insert({
+      system_a_id,
+      system_b_id,
+      connection_type,
+      directional,
+    })
     .single();
+
   if (error) throw error;
-  return data as SystemInterface;
+  return data;
 }
 
 export async function updateInterface(
@@ -65,7 +80,6 @@ export async function updateInterface(
   if (error) throw error;
   return data as SystemInterface;
 }
-
 
 export async function deleteInterface(id: string): Promise<void> {
   const { error } = await supabase

@@ -16,192 +16,79 @@ type InterfaceDef = {
 };
 
 export async function seedDatabase(supabase: SupabaseClient) {
-  await supabase.from("system_interfaces").delete().neq("id", "");
-  await supabase.from("systems").delete().neq("id", "");
+
 
   const systemDefs: SystemDef[] = [
     {
-      key: "production",
-      name: "Production Environment",
+      key: "prod",
+      name: "Production",
       category: "environment",
       parentKey: null,
     },
     {
-      key: "serviceGroup",
-      name: "Service Layer",
+      key: "infra",
+      name: "Infrastructure",
       category: "group",
-      parentKey: "production",
+      parentKey: "prod",
     },
+    { key: "services", name: "Services", category: "group", parentKey: "prod" },
     {
-      key: "infraGroup",
-      name: "Infrastructure Layer",
-      category: "group",
-      parentKey: "production",
-    },
-    {
-      key: "frontendGroup",
-      name: "Frontend Layer",
-      category: "group",
-      parentKey: "production",
-    },
-    {
-      key: "authService",
-      name: "Authentication Service",
-      category: "service",
-      parentKey: "serviceGroup",
-    },
-    {
-      key: "userService",
-      name: "User Service",
-      category: "service",
-      parentKey: "serviceGroup",
-    },
-    {
-      key: "analyticsService",
-      name: "Analytics Service",
-      category: "service",
-      parentKey: "serviceGroup",
-    },
-    {
-      key: "dbCluster",
+      key: "db",
       name: "Database Cluster",
       category: "database",
-      parentKey: "infraGroup",
+      parentKey: "infra",
     },
     {
-      key: "cacheCluster",
+      key: "cache",
       name: "Cache Cluster",
       category: "cache",
-      parentKey: "infraGroup",
+      parentKey: "infra",
     },
     {
-      key: "messageQueue",
-      name: "Message Queue",
-      category: "queue",
-      parentKey: "infraGroup",
-    },
-    {
-      key: "webApp",
-      name: "Web Application",
+      key: "webapp",
+      name: "Web App",
       category: "frontend",
-      parentKey: "frontendGroup",
+      parentKey: "services",
     },
     {
-      key: "adminPortal",
-      name: "Admin Portal",
-      category: "frontend",
-      parentKey: "frontendGroup",
+      key: "api",
+      name: "API Service",
+      category: "service",
+      parentKey: "services",
     },
   ];
 
   const ifaceDefs: InterfaceDef[] = [
+    { a: "prod", b: "infra", directional: false, connection_type: "hosts" },
+    { a: "prod", b: "services", directional: false, connection_type: "hosts" },
+
+    { a: "infra", b: "db", directional: false, connection_type: "provisions" },
     {
-      a: "production",
-      b: "serviceGroup",
+      a: "infra",
+      b: "cache",
       directional: false,
-      connection_type: "dependency",
+      connection_type: "provisions",
     },
+
     {
-      a: "production",
-      b: "infraGroup",
+      a: "services",
+      b: "api",
       directional: false,
-      connection_type: "dependency",
+      connection_type: "contains",
     },
     {
-      a: "production",
-      b: "frontendGroup",
+      a: "services",
+      b: "webapp",
       directional: false,
-      connection_type: "dependency",
+      connection_type: "contains",
     },
-    {
-      a: "serviceGroup",
-      b: "authService",
-      directional: false,
-      connection_type: "dependency",
-    },
-    {
-      a: "serviceGroup",
-      b: "userService",
-      directional: false,
-      connection_type: "dependency",
-    },
-    {
-      a: "serviceGroup",
-      b: "analyticsService",
-      directional: false,
-      connection_type: "dependency",
-    },
-    {
-      a: "infraGroup",
-      b: "dbCluster",
-      directional: false,
-      connection_type: "dependency",
-    },
-    {
-      a: "infraGroup",
-      b: "cacheCluster",
-      directional: false,
-      connection_type: "dependency",
-    },
-    {
-      a: "infraGroup",
-      b: "messageQueue",
-      directional: false,
-      connection_type: "dependency",
-    },
-    {
-      a: "frontendGroup",
-      b: "webApp",
-      directional: false,
-      connection_type: "dependency",
-    },
-    {
-      a: "frontendGroup",
-      b: "adminPortal",
-      directional: false,
-      connection_type: "dependency",
-    },
-    {
-      a: "webApp",
-      b: "authService",
-      directional: true,
-      connection_type: "REST",
-    },
-    {
-      a: "webApp",
-      b: "userService",
-      directional: true,
-      connection_type: "gRPC",
-    },
-    {
-      a: "authService",
-      b: "dbCluster",
-      directional: true,
-      connection_type: "PostgreSQL",
-    },
-    {
-      a: "userService",
-      b: "messageQueue",
-      directional: true,
-      connection_type: "RabbitMQ",
-    },
-    {
-      a: "analyticsService",
-      b: "dbCluster",
-      directional: true,
-      connection_type: "ETL",
-    },
-    {
-      a: "adminPortal",
-      b: "authService",
-      directional: true,
-      connection_type: "GraphQL",
-    },
+
+    { a: "webapp", b: "api", directional: true, connection_type: "REST" },
+    { a: "api", b: "db", directional: true, connection_type: "PostgreSQL" },
+    { a: "api", b: "cache", directional: true, connection_type: "Memcached" },
   ];
 
-  // Clear existing data
-  await supabase.from("system_interfaces").delete().neq("id", "");
-  await supabase.from("systems").delete().neq("id", "");
+
 
   // Insert systems, track their IDs
   const idMap: Record<string, string> = {};

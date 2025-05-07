@@ -21,7 +21,7 @@ const SystemSection: FC = () => {
   const systemId = params.get("selectedId") ?? "";
 
   const { data: categories = [] } = useFetchCategories();
-  console.log("categories", categories);
+
   const { data: children = [], isLoading: isLoadingDescendants } =
     useFetchDescendants(systemId);
 

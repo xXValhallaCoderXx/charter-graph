@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
+import { useMemo } from "react";
 import { useFetchInterfaces2 } from "@/shared/hooks/useInterfaceApi";
 import { useSearchParams } from "next/navigation";
 import { Typography } from "@/shared/components/atoms";
@@ -9,17 +9,41 @@ import { useFlowData } from "@/shared/hooks/useFlowGraphData";
 import AddInterfaceForm from "./components/AddInterfaceForm";
 import InterfaceLoading from "./components/InterfaceLoading";
 import InterfaceList from "./components/InterfaceList";
+import { useFetchAllSystems } from "@/shared/hooks/useInterfaceApi";
 // import { buildAvailableInterfaceOptions } from "./components/InterfaceList";
 
 const InterfaceDetails = () => {
   const params = useSearchParams();
   const systemId = params.get("selectedId") ?? "";
   const { data: graph } = useFlowData(systemId);
+  const { data: allSystems = [] } = useFetchAllSystems();
 
   const { data: ifaces = [], isLoading } = useFetchInterfaces2(systemId);
 
   // @ts-ignore
   //   const x = buildAvailableInterfaceOptions(graph?.nodes, graph?.edges);
+  //   console.log("x", x);
+
+  const connected = new Set<string>();
+  ifaces.forEach((iface) => {
+    if (String(iface.system_a_id) === systemId) {
+      connected.add(String(iface.system_b_id));
+    } else if (String(iface.system_b_id) === systemId) {
+      connected.add(String(iface.system_a_id));
+    }
+  });
+
+  // 4) build your dropdown options from the *full* list of systems
+  const options = allSystems
+    .filter((sys) => sys.id !== systemId) // never itself
+    .filter((sys) => !connected.has(sys.id)) // never already connected
+    .map((sys) => ({
+      value: sys.id,
+      label: sys.name,
+    }));
+
+  console.log("options", options);
+
   return (
     <div className="flex flex-col h-full  overflow-hidden px-1">
       {/* ── Scrollable List Area ── */}
@@ -49,7 +73,7 @@ const InterfaceDetails = () => {
             systemId={systemId}
             ifaces={ifaces}
             graph={graph}
-            options={[]}
+            options={options}
           />
         )}
       </div>
@@ -58,7 +82,7 @@ const InterfaceDetails = () => {
         <AddInterfaceForm
           systemId={systemId}
           isLoading={isLoading}
-          options={[]}
+          options={options}
         />
       </div>
     </div>

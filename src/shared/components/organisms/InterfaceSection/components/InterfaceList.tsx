@@ -112,13 +112,15 @@ const InterfaceList: FC<IIinterfaceListProps> = ({
                   value={editType}
                   onChange={(e) => setEditType(e.target.value)}
                   placeholder="Connection Type"
+                  className="w-full"
                 />
-                sss
+
                 <Select
                   disabled={!systemId}
                   options={options}
                   value={editOther}
-                  //   onChange={(v) => setEditOther(v ?? "")}
+                  className="w-full"
+                  onChange={(e) => setEditOther(e?.target?.value)}
                 />
                 <label className="flex items-center gap-2">
                   <input
