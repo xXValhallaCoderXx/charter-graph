@@ -41,12 +41,12 @@ const GraphPanel = () => {
     data?.edges || []
   );
 
+  // Not sure why but had to manually hook into node change
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
       setNodesInternal((nds) => {
         const updated = applyNodeChanges(changes, nds);
         updated.forEach((n) => {
-          // capture every manual drag
           posRef.current.set(n.id, n.position);
         });
         return updated;
@@ -58,7 +58,7 @@ const GraphPanel = () => {
   useEffect(() => {
     if (!data) return;
 
-    // 2a) compute a fresh Dagre layout (positions for this view)
+    // Compute a fresh Dagre layout
     const { nodes: layoutNodes, edges: layoutEdges } = getLayoutedNodes(
       data.nodes,
       data.edges,
@@ -67,14 +67,14 @@ const GraphPanel = () => {
     setEdgesInternal(layoutEdges);
 
     if (isFirstLayout.current) {
-      // very first time: stash _all_ positions
+      // very first time: stash
       layoutNodes.forEach((n) => {
         posRef.current.set(n.id, n.position);
       });
       setNodesInternal(layoutNodes);
       isFirstLayout.current = false;
     } else {
-      // thereafter: for each node in this view, pick up our cached position if we have one
+      // For each node in this view, pick up our cached position if we have one
       setNodesInternal(
         layoutNodes.map((n) => ({
           ...n,
