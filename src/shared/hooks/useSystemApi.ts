@@ -3,6 +3,7 @@ import type { PostgrestError } from "@supabase/supabase-js";
 import {
   fetchSystemById,
   updateSystem,
+  fetchDistinctCategories,
   deleteSystem,
   fetchDescendants,
   createSystemAndInterface,
@@ -43,6 +44,30 @@ export function useUpdateSystem(id: string) {
       qc.invalidateQueries({ queryKey: QUERY_KEYS.system(id) });
       qc.invalidateQueries({ queryKey: ["graph-data"], exact: false });
     },
+  });
+}
+
+export function useLazyUpdateSystem() {
+  const qc = useQueryClient();
+  return useMutation<
+    System,
+    PostgrestError,
+    { id: string; data: Partial<Pick<System, "name" | "category">> }
+  >({
+    mutationFn: ({ id, data }) => updateSystem(id, data),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.system(variables.id) });
+      qc.invalidateQueries({ queryKey: ["descendants"], exact: false });
+      qc.invalidateQueries({ queryKey: ["graph-data"], exact: false });
+    },
+  });
+}
+
+export function useFetchCategories() {
+  return useQuery<string[], PostgrestError>({
+    queryKey: ["categories"],
+    queryFn: fetchDistinctCategories,
+    staleTime: 60_000,
   });
 }
 

@@ -18,7 +18,7 @@ const AddSystemForm = ({ systemId }: IAddSystemFormProps) => {
   };
 
   return (
-    <>
+    <div className=" pl-1  flex  flex-1 justify-between items-center gap-2">
       <Input
         placeholder="Enter a new system name"
         disabled={createChildM?.isPending || !systemId}
@@ -29,7 +29,7 @@ const AddSystemForm = ({ systemId }: IAddSystemFormProps) => {
           }
         }}
       />
-      <div className="w-40">
+      <div className="w-[165px]">
         <Button
           label="Add System"
           disabled={createChildM?.isPending || !systemId}
@@ -42,7 +42,7 @@ const AddSystemForm = ({ systemId }: IAddSystemFormProps) => {
           }}
         />
       </div>
-    </>
+    </div>
   );
 };
 

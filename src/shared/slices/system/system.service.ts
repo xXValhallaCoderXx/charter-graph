@@ -21,6 +21,16 @@ export async function fetchSystemById(id: string): Promise<System> {
   return data as System;
 }
 
+export async function fetchDistinctCategories(): Promise<string[]> {
+  const { data, error } = await supabase.from("systems").select("category");
+  if (error) throw error;
+
+  // Remove duplicates and sort categories - distnct did not work
+  const cats = Array.from(new Set(data.map((r) => r.category)));
+  cats.sort((a, b) => a.localeCompare(b));
+  return cats;
+}
+
 export async function fetchDescendants(rootId: string): Promise<System[]> {
   const descendants: System[] = [];
   const queue: string[] = [rootId];

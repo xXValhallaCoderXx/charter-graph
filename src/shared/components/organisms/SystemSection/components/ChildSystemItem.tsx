@@ -5,6 +5,7 @@ import {
   IconCheck,
   IconCancel,
 } from "@tabler/icons-react";
+import { Select } from "@/shared/components/molecues";
 import { Input, ActionIcon } from "@/shared/components/atoms";
 import { System } from "@/shared/slices/system/system.types";
 
@@ -13,6 +14,8 @@ interface IChildSystemListProps {
   child: System;
   isLoading: boolean;
   onClickRemove: (childId: string) => void;
+  onClickUpdate: (childId: string, data: Partial<System>) => void;
+  categories: string[];
 }
 
 const ChildSystemItem: FC<IChildSystemListProps> = ({
@@ -20,6 +23,8 @@ const ChildSystemItem: FC<IChildSystemListProps> = ({
   child,
   isLoading,
   onClickRemove,
+  onClickUpdate,
+  categories,
 }) => {
   const [isEditing, setEditing] = useState(false);
   const [name, setName] = useState(child.name);
@@ -46,17 +51,25 @@ const ChildSystemItem: FC<IChildSystemListProps> = ({
             onChange={(e) => setName(e.target.value)}
             disabled={isLoading}
           />
-          <Input
-            value={cat}
-            onChange={(e) => setCat(e.target.value)}
+
+          <Select
+            className="bg-white capitalize"
             disabled={isLoading}
+            options={
+              categories?.map((cat) => ({
+                value: cat,
+                label: cat,
+              })) || []
+            }
+            value={cat}
+            onChange={(e) => setCat(e?.target?.value)}
           />
           <div className="flex gap-2">
             <ActionIcon size="lg" rounded={false} variant="transparent">
               <IconCheck
                 color="green"
                 onClick={() => {
-                  //   onUpdate(child.id, { name, category: cat });
+                  onClickUpdate(child.id, { name, category: cat });
                   setEditing(false);
                 }}
               />
@@ -65,6 +78,8 @@ const ChildSystemItem: FC<IChildSystemListProps> = ({
               <IconCancel
                 color="red"
                 onClick={() => {
+                  setName(child.name);
+                  setCat(child.category);
                   setEditing(false);
                 }}
               />

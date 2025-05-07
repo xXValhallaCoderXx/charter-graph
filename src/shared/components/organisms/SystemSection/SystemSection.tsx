@@ -1,7 +1,13 @@
 "use client";
-import { useFetchDescendants } from "@/shared/hooks/useSystemApi";
+import {
+  useFetchDescendants,
+  useFetchCategories,
+} from "@/shared/hooks/useSystemApi";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useRemoveChildSystem } from "@/shared/hooks/useSystemApi";
+import {
+  useRemoveChildSystem,
+  useLazyUpdateSystem,
+} from "@/shared/hooks/useSystemApi";
 import { FC } from "react";
 import { System } from "@/shared/slices/system/system.types";
 import ChildSystemItem from "./components/ChildSystemItem";
@@ -14,13 +20,23 @@ const SystemSection: FC = () => {
   const router = useRouter();
   const systemId = params.get("selectedId") ?? "";
 
+  const { data: categories = [] } = useFetchCategories();
+  console.log("categories", categories);
   const { data: children = [], isLoading: isLoadingDescendants } =
     useFetchDescendants(systemId);
 
   const removeChildM = useRemoveChildSystem(systemId);
+  const updateSystem = useLazyUpdateSystem();
 
   const handleNavigateToChildSystem = (childId: string) => () => {
     router.replace(`/?rootId=${childId}&selectedId=${childId}`);
+  };
+
+  const handleUpdateSystem = (_id: string, _data: Partial<System>) => {
+    updateSystem.mutate({
+      id: _id,
+      data: _data,
+    });
   };
 
   return (
@@ -41,10 +57,12 @@ const SystemSection: FC = () => {
           {children.map((child: System) => (
             <ChildSystemItem
               key={child.id}
+              categories={categories}
               child={child}
               isLoading={isLoadingDescendants}
               onClickChildSystem={handleNavigateToChildSystem}
               onClickRemove={removeChildM.mutate}
+              onClickUpdate={handleUpdateSystem}
             />
           ))}
         </ul>
