@@ -3,6 +3,7 @@ import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import type { PostgrestError } from "@supabase/supabase-js";
 import { fetchGraph } from "@/shared/slices/system/system.service";
 import type { Node, Edge } from "@xyflow/react";
+import stringHash from "string-hash";
 
 export interface FlowData {
   nodes: Node[];
@@ -12,18 +13,39 @@ export interface FlowData {
 export function useFlowData(
   rootId?: string
 ): UseQueryResult<FlowData, PostgrestError> {
+  // in-memory map so each type always gets the same color this session
+  const typeColorMap = new Map<string, string>();
+  function getColorForType(type: string): string {
+    if (!typeColorMap.has(type)) {
+      // hash → 0–359 hue
+      const hue = stringHash(type) % 360;
+      typeColorMap.set(type, `hsl(${hue}, 70%, 60%)`);
+    }
+    return typeColorMap.get(type)!;
+  }
+
   return useQuery<FlowData, PostgrestError>({
     queryKey: ["graph-data", rootId],
     queryFn: async () => {
       const { nodes: rawNodes, edges: rawEdges } = await fetchGraph(rootId);
 
       // 2) map to React-Flow shapes
-      const nodes: Node[] = rawNodes.map((sys) => ({
-        id: sys.id.toString(), // ← string!
-        data: { label: sys.name },
-        position: { x: 0, y: 0 },
-        style: { borderRadius: 8, padding: 10 },
-      }));
+      const nodes: Node[] = rawNodes.map((sys) => {
+        // choose your type field—could be sys.category or sys.type
+        const t = (sys as any).category ?? "default";
+        return {
+          id: sys.id.toString(),
+          data: { label: sys.name, type: sys.category },
+          position: { x: 0, y: 0 },
+          style: {
+            background: getColorForType(t),
+            color: "white",
+            fontWeight: 700,
+            borderRadius: 8,
+            padding: 10,
+          },
+        };
+      });
 
       const edges: Edge[] = rawEdges.map((intf) => ({
         id: intf.id.toString(), // ← string!

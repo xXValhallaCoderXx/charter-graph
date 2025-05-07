@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+import { Typography } from "@/shared/components/atoms";
 import { useFlowData } from "@/shared/hooks/useFlowGraphData";
+import { Legend } from "@/shared/components/molecues";
 import { useSearchParams, useRouter } from "next/navigation";
 import { getLayoutedNodes } from "@/shared/lib/dagre-layout";
 import {
@@ -17,6 +19,7 @@ import {
   BackgroundVariant,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { IconArrowBack } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef } from "react";
 
 const GraphPanel = () => {
@@ -34,28 +37,28 @@ const GraphPanel = () => {
     if (!data) return;
     setEdges(data.edges);
 
-  // 2) Compute a fresh Dagre layout
-  const fullLayout = getLayoutedNodes(data.nodes, data.edges);
+    // 2) Compute a fresh Dagre layout
+    const fullLayout = getLayoutedNodes(data.nodes, data.edges);
 
-  // 3) Merge logic inside a functional update on nodes
-  setNodes((currentNodes) => {
-    // If the root changed, throw away old positions entirely:
-    if (prevRoot.current !== rootId) {
-      prevRoot.current = rootId;
-      return fullLayout;
-    }
+    // 3) Merge logic inside a functional update on nodes
+    setNodes((currentNodes) => {
+      // If the root changed, throw away old positions entirely:
+      if (prevRoot.current !== rootId) {
+        prevRoot.current = rootId;
+        return fullLayout;
+      }
 
-    // Otherwise, preserve old positions for nodes that already existed:
-    const posMap = Object.fromEntries(
-      currentNodes.map((n) => [n.id, n.position])
-    );
+      // Otherwise, preserve old positions for nodes that already existed:
+      const posMap = Object.fromEntries(
+        currentNodes.map((n) => [n.id, n.position])
+      );
 
-    return fullLayout.map((n) => ({
-      ...n,
-      // if we have an old position, keep it; else use the new Dagre position
-      position: posMap[n.id] ?? n.position,
-    }));
-  });
+      return fullLayout.map((n) => ({
+        ...n,
+        // if we have an old position, keep it; else use the new Dagre position
+        position: posMap[n.id] ?? n.position,
+      }));
+    });
   }, [data, rootId, setEdges, setNodes]);
 
   const onConnect = useCallback(
@@ -78,7 +81,6 @@ const GraphPanel = () => {
           router.replace(`/?rootId=${rootId ?? ""}&selectedId=${node.id}`);
         }}
         onNodeDoubleClick={(e: any, node: any) => {
-          // re-root the graph and open the sidebar on that node
           router.replace(`/?rootId=${node.id}&selectedId=${node.id}`);
         }}
         fitView
@@ -93,19 +95,19 @@ const GraphPanel = () => {
         >
           {rootId ? (
             <button
-              onClick={() => {
-                // clear rootId & selectedId → go back to full graph
-                router.replace("/");
-              }}
-              className="text-blue-600 hover:underline"
+              onClick={() => router.replace("/")}
+              className="text-blue-600 hover:underline cursor-pointer flex items-center gap-2"
             >
-              ← Back to Root
+              <IconArrowBack /> Back to Root
             </button>
           ) : (
-            <span className="font-medium">Full Graph</span>
+            <Typography fw="semibold">Root Node</Typography>
           )}
         </Panel>
       </ReactFlow>
+      <div className="absolute top-18 right-6">
+        <Legend nodes={nodes} />
+      </div>
     </div>
   );
 };
