@@ -1,13 +1,14 @@
 import { FC, ReactNode, ButtonHTMLAttributes } from "react";
 import { cx } from "@/shared/lib/class-joiner";
 
-export interface ActionIconProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ActionIconProps
+  extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   size?: "xs" | "sm" | "md" | "lg";
   color?: "default" | "primary" | "danger";
   rounded?: boolean;
   tooltip?: string;
-  variant?: "filled" | "outline";
+  variant?: "filled" | "outline" | "transparent";
 }
 
 const sizeMap = {
@@ -21,14 +22,17 @@ const colorMap = {
   default: {
     filled: "bg-gray-100 text-gray-700 hover:bg-gray-200",
     outline: "border border-gray-300 text-gray-700 hover:bg-gray-100",
+    transparent: "bg-transparent text-gray-700 hover:bg-gray-100 border-none",
   },
   primary: {
     filled: "bg-blue-600 text-white hover:bg-blue-700",
     outline: "border border-blue-600 text-blue-600 hover:bg-blue-50",
+    transparent: "bg-transparent text-blue-600 hover:bg-blue-50 border-none",
   },
   danger: {
     filled: "bg-red-600 text-white hover:bg-red-700",
     outline: "border border-red-600 text-red-600 hover:bg-red-50",
+    transparent: "bg-transparent text-red-600 hover:bg-red-50 border-none",
   },
 };
 

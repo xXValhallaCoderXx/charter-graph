@@ -6,18 +6,20 @@ export interface SelectOption {
 }
 
 export interface SelectProps
-  extends React.SelectHTMLAttributes<HTMLSelectElement> {
+  extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "onChange"> {
   options: SelectOption[];
   className?: string;
+  onChange?: (event: React.ChangeEvent<HTMLSelectElement>) => void;
 }
-
 const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  ({ options, className = "", id, ...rest }, ref) => {
+  ({ options, className = "", id, onChange, value = "", ...rest }, ref) => {
     return (
       <select
         id={id}
+        value={value}
         ref={ref}
         className={`rounded border px-3 py-2 h-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300 focus:border-blue-500 ${className}`}
+        onChange={onChange}
         {...rest}
       >
         {options.map((opt) => (
@@ -29,6 +31,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     );
   }
 );
+
 
 Select.displayName = "Select";
 

@@ -9,12 +9,13 @@ const GraphPanel = dynamic(
   () => import("@/shared/components/organisms/GraphPanel"),
   { ssr: false }
 );
-const SystemDetails = dynamic(
-  () => import("@/shared/components/organisms/SystemDetails"),
+const SystemSection = dynamic(
+  () => import("@/shared/components/organisms/SystemSection/SystemSection"),
   { ssr: false }
 );
 const InterfaceDetails = dynamic(
-  () => import("@/shared/components/organisms/InterfaceDetails"),
+  () =>
+    import("@/shared/components/organisms/InterfaceSection/InterfaceSection"),
   { ssr: false }
 );
 
@@ -47,7 +48,7 @@ export default function Home() {
           >
             <Card>
               <Suspense fallback={<div className="p-4">Loading system…</div>}>
-                <SystemDetails />
+                <SystemSection />
               </Suspense>
             </Card>
 

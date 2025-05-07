@@ -1,4 +1,4 @@
 export { default as GraphPanel } from "./GraphPanel";
-export { default as SystemDetails } from "./SystemDetails";
-export { default as InterfaceDetails } from "./InterfaceDetails";
+export { SystemSection } from "./SystemSection";
+
 export { default as AppHeader } from "./AppHeader";

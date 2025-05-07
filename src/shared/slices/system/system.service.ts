@@ -162,3 +162,42 @@ export async function createSystemAndInterface(
 
   return { system, iface };
 }
+
+
+export async function fetchInterfacesByRoot(
+  rootId: string
+): Promise<SystemInterface[]> {
+  // 1) Gather all descendant *IDs* in a flat array
+  const descendantIds: string[] = [];
+  const queue: string[] = [rootId];
+
+  while (queue.length > 0) {
+    const parent = queue.shift()!;
+    const { data: children, error: childErr } = await supabase
+      .from("systems")
+      .select("id")
+      .eq("parent_id", parent);
+
+    if (childErr) throw childErr;
+
+    for (const child of children ?? []) {
+      // child.id is a string, so we can push it directly
+      descendantIds.push(child.id);
+      queue.push(child.id);
+    }
+  }
+
+  // 2) Build a list of ALL relevant IDs: the root + its descendants
+  const allIds = [rootId, ...descendantIds];
+  // **DON’T** wrap in quotes—just join them numerically
+  const idCsv = allIds.join(","); // e.g. "134,135,136,137"
+
+  // 3) Fetch any interface where either end is in that list
+  const { data: ifaces, error } = await supabase
+    .from("system_interfaces")
+    .select("*")
+    .or(`system_a_id.in.(${idCsv}),system_b_id.in.(${idCsv})`);
+
+  if (error) throw error;
+  return ifaces!;
+}
