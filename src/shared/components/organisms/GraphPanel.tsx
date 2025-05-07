@@ -27,39 +27,45 @@ const GraphPanel = () => {
   const router = useRouter();
   const isMounted = useRef(false);
   const rootId = params.get("rootId") ?? undefined;
-  const prevRoot = useRef<string | undefined>(rootId);
-  const { data, isLoading, error } = useFlowData(rootId);
+    const selectedId = params.get("selectedId") ?? undefined;
+    const prevRoot = useRef<string | undefined>(rootId);
+    const { data, isLoading, error } = useFlowData(rootId);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(data?.nodes || []);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(data?.edges || []);
+    const [nodes, setNodes, onNodesChange] = useNodesState(data?.nodes || []);
+    const [edges, setEdges, onEdgesChange] = useEdgesState(data?.edges || []);
 
-  useEffect(() => {
-    if (!data) return;
-    setEdges(data.edges);
+    useEffect(() => {
+      if (!data) return;
 
-    // 2) Compute a fresh Dagre layout
-    const fullLayout = getLayoutedNodes(data.nodes, data.edges);
-
-    // 3) Merge logic inside a functional update on nodes
-    setNodes((currentNodes) => {
-      // If the root changed, throw away old positions entirely:
-      if (prevRoot.current !== rootId) {
-        prevRoot.current = rootId;
-        return fullLayout;
-      }
-
-      // Otherwise, preserve old positions for nodes that already existed:
-      const posMap = Object.fromEntries(
-        currentNodes.map((n) => [n.id, n.position])
+      // 1) Destructure both nodes & edges
+      const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedNodes(
+        data.nodes,
+        data.edges,
+        selectedId
       );
 
-      return fullLayout.map((n) => ({
-        ...n,
-        // if we have an old position, keep it; else use the new Dagre position
-        position: posMap[n.id] ?? n.position,
-      }));
-    });
-  }, [data, rootId, setEdges, setNodes]);
+      // 2) Always replace your edges with the newly–styled ones
+      setEdges(layoutedEdges);
+
+      // 3) Merge positions but use layoutedNodes instead of fullLayout
+      setNodes((currentNodes) => {
+        // if the root changed, just throw away all old positions
+        if (prevRoot.current !== rootId) {
+          prevRoot.current = rootId;
+          return layoutedNodes;
+        }
+
+        // otherwise preserve the old positions for existing nodes
+        const posMap = Object.fromEntries(
+          currentNodes.map((n) => [n.id, n.position])
+        );
+
+        return layoutedNodes.map((n) => ({
+          ...n,
+          position: posMap[n.id] ?? n.position,
+        }));
+      });
+    }, [data, rootId, selectedId, setNodes, setEdges]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
