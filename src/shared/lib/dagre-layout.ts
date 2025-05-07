@@ -40,7 +40,7 @@ export function getLayoutedNodes(
 
     return {
       ...e,
-      animated: Boolean(isSelEdge),
+
       style: {
         ...e.style,
         stroke: isSelEdge ? "#4F46E5" : e.style?.stroke ?? "#999",

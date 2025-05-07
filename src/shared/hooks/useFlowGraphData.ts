@@ -4,7 +4,7 @@ import type { PostgrestError } from "@supabase/supabase-js";
 import { fetchGraph } from "@/shared/slices/system/system.service";
 import type { Node, Edge } from "@xyflow/react";
 import stringHash from "string-hash";
-
+import { MarkerType } from "@xyflow/react";
 export interface FlowData {
   nodes: Node[];
   edges: Edge[];
@@ -45,15 +45,38 @@ export function useFlowData(
           },
         };
       });
+      const edges: Edge[] = rawEdges.map((intf) => {
+        const common = {
+          id: intf.id.toString(),
+          source: intf.system_a_id.toString(),
+          target: intf.system_b_id.toString(),
+          label: intf.connection_type,
+          style: { strokeWidth: 2 },
+          animated: intf.directional, // keep your existing dash animation
+        };
 
-      const edges: Edge[] = rawEdges.map((intf) => ({
-        id: intf.id.toString(),
-        source: intf.system_a_id.toString(),
-        target: intf.system_b_id.toString(),
-        animated: intf.directional,
-        label: intf.connection_type,
-        style: { strokeWidth: 2 },
-      }));
+        if (intf.directional) {
+          // One‑way: arrow at the end only
+          return {
+            ...common,
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+            },
+          };
+        } else {
+          // Bi‑directional: arrows at both ends
+          return {
+            ...common,
+            markerStart: {
+              type: MarkerType.ArrowClosed,
+            },
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+            },
+            animated: false, // you probably don’t want the dash animation here
+          };
+        }
+      });
 
       return { nodes, edges };
     },
