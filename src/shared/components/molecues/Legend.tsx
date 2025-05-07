@@ -22,7 +22,7 @@ function Legend({ nodes }: LegendProps) {
       {[...map.entries()].map(([type, color]) => (
         <div key={type} className="flex items-center gap-2">
           <span className="w-4 h-4 rounded" style={{ background: color }} />
-          <span className="text-sm font-medium">{type}</span>
+          <span className="text-sm font-medium capitalize">{type}</span>
         </div>
       ))}
     </div>

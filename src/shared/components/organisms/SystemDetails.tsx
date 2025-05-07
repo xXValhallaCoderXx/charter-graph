@@ -108,7 +108,7 @@ const SystemDetails: FC<ISystemDetailsProps> = ({ systemId }) => {
               disabled={!systemId}
               onChange={(e) => setCategory(e.target.value)}
               onBlur={handleCategoryBlur}
-              className="mt-1"
+              className="mt-1 capitalize"
             />
           </Skeleton>
         </label>
