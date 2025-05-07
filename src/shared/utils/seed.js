@@ -13,32 +13,39 @@ async function seed() {
 
   const systemDefs = [
     { key: "prod", name: "Production", category: "environment", parentKey: null },
-    { key: "infra", name: "Infrastructure", category: "group", parentKey: "prod" },
-    { key: "services", name: "Services", category: "group", parentKey: "prod" },
-    { key: "db", name: "Database Cluster", category: "database", parentKey: "infra" },
-    { key: "cache", name: "Cache Cluster", category: "cache", parentKey: "infra" },
-    { key: "webapp", name: "Web App", category: "frontend", parentKey: "services" },
-    { key: "api", name: "API Service", category: "service", parentKey: "services" },
+    { key: "frontend", name: "Web Frontend", category: "service", parentKey: "prod" },
+    { key: "api", name: "API Service", category: "service", parentKey: "prod" },
+    { key: "s3", name: "Amazon S3 Storage", category: "aws", parentKey: "prod" },
+    { key: "ddb", name: "DynamoDB Table", category: "aws", parentKey: "prod" },
+
+    // children of API Service (second tier)
+    { key: "auth", name: "Auth Service", category: "service", parentKey: "api" },
+    { key: "imgProc", name: "Image Processor", category: "service", parentKey: "api" },
+
+    // grandchild under Auth Service (third tier)
+    { key: "oauth", name: "OAuth Provider", category: "external", parentKey: "auth" },
   ];
 
 
   const ifaceDefs = [
 
-    { a: "prod", b: "infra", directional: false, connection_type: "hosts" },
-    { a: "prod", b: "services", directional: false, connection_type: "hosts" },
+    // hierarchy / hosts
+    { a: "prod", b: "frontend", directional: false, connection_type: "hosts" },
+    { a: "prod", b: "api", directional: false, connection_type: "hosts" },
+    { a: "prod", b: "s3", directional: false, connection_type: "hosts" },
+    { a: "prod", b: "ddb", directional: false, connection_type: "hosts" },
 
+    // actual flows
+    { a: "frontend", b: "api", directional: true, connection_type: "REST" },
+    { a: "api", b: "s3", directional: true, connection_type: "S3 SDK" },
+    { a: "api", b: "ddb", directional: true, connection_type: "DynamoDB" },
 
-    { a: "infra", b: "db", directional: false, connection_type: "provisions" },
-    { a: "infra", b: "cache", directional: false, connection_type: "provisions" },
+    // second tier under API
+    { a: "api", b: "auth", directional: true, connection_type: "RPC" },
+    { a: "api", b: "imgProc", directional: true, connection_type: "gRPC" },
 
-
-    { a: "services", b: "api", directional: false, connection_type: "contains" },
-    { a: "services", b: "webapp", directional: false, connection_type: "contains" },
-
-
-    { a: "webapp", b: "api", directional: true, connection_type: "REST" },
-    { a: "api", b: "db", directional: true, connection_type: "PostgreSQL" },
-    { a: "api", b: "cache", directional: true, connection_type: "Memcached" },
+    // third tier under Auth
+    { a: "auth", b: "oauth", directional: true, connection_type: "OAuth2" },
   ];
 
   console.log('▶️ Clearing existing data...');

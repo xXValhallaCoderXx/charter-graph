@@ -29,7 +29,7 @@ const ChildSystemItem: FC<IChildSystemListProps> = ({
   const [isEditing, setEditing] = useState(false);
   const [name, setName] = useState(child.name);
   const [cat, setCat] = useState(child.category);
-  console.log("child", child);
+
   useEffect(() => {
     setName(child.name);
     setCat(child.category);

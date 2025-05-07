@@ -25,6 +25,7 @@ const SystemSection: FC = () => {
   const { data: children = [], isLoading: isLoadingDescendants } =
     useFetchDescendants(systemId);
 
+
   const removeChildM = useRemoveChildSystem(systemId);
   const updateSystem = useLazyUpdateSystem();
 

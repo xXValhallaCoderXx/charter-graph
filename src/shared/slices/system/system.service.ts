@@ -11,7 +11,6 @@ export async function fetchAllSystems(): Promise<System[]> {
 }
 
 export async function fetchSystemById(id: string): Promise<System> {
-  console.log("ID: ", id);
   const { data, error } = await supabase
     .from("systems")
     .select("id, name, category, parent_id")
@@ -150,7 +149,6 @@ export async function createSystemAndInterface(
   category: string,
   parentId: string
 ): Promise<{ system: System; iface: SystemInterface }> {
-  console.log("Creating system and interface");
   const { data: system, error: err1 } = await supabase
     .from("systems")
     .insert({ name, category, parent_id: parentId })

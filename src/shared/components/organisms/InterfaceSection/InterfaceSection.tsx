@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useFetchInterfaces2 } from "@/shared/hooks/useInterfaceApi";
 import { useSearchParams } from "next/navigation";
@@ -9,7 +7,6 @@ import AddInterfaceForm from "./components/AddInterfaceForm";
 import InterfaceLoading from "./components/InterfaceLoading";
 import InterfaceList from "./components/InterfaceList";
 import { useFetchAllSystems } from "@/shared/hooks/useInterfaceApi";
-// import { buildAvailableInterfaceOptions } from "./components/InterfaceList";
 
 const InterfaceDetails = () => {
   const params = useSearchParams();
@@ -18,10 +15,6 @@ const InterfaceDetails = () => {
   const { data: allSystems = [] } = useFetchAllSystems();
 
   const { data: ifaces = [], isLoading } = useFetchInterfaces2(systemId);
-
-  // @ts-ignore
-  //   const x = buildAvailableInterfaceOptions(graph?.nodes, graph?.edges);
-  //   console.log("x", x);
 
   const connected = new Set<string>();
   ifaces.forEach((iface) => {
@@ -32,16 +25,13 @@ const InterfaceDetails = () => {
     }
   });
 
-  // 4) build your dropdown options from the *full* list of systems
   const options = allSystems
-    .filter((sys) => sys.id !== systemId) // never itself
-    .filter((sys) => !connected.has(sys.id)) // never already connected
+    .filter((sys) => sys.id !== systemId)
+    .filter((sys) => !connected.has(sys.id))
     .map((sys) => ({
       value: sys.id,
       label: sys.name,
     }));
-
-  console.log("options", options);
 
   return (
     <div className="flex flex-col h-full  overflow-hidden px-1">
