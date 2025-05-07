@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// components/Legend.tsx
+
 import type { Node } from "@xyflow/react";
 
 interface LegendProps {

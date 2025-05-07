@@ -24,17 +24,15 @@ interface ISystemDetailsProps {
 
 const SystemDetails: FC<ISystemDetailsProps> = ({ systemId }) => {
   const router = useRouter();
-  // Queries
+ 
   const { data: system, isLoading: loadingSys } = useFetchSystem(systemId);
   const { data: children = [], isLoading: isLoadingDescendants } =
     useFetchDescendants(systemId);
 
-  // Mutations
   const updateSystemM = useUpdateSystem(systemId);
   const createChildM = useCreateChildSystem(systemId);
   const removeChildM = useRemoveChildSystem(systemId);
 
-  // Local form state
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   useEffect(() => {
@@ -44,7 +42,6 @@ const SystemDetails: FC<ISystemDetailsProps> = ({ systemId }) => {
     }
   }, [system]);
 
-  // Handlers for onBlur and actions
   const handleNameBlur = () => {
     if (name !== system?.name) {
       updateSystemM.mutate({ name });
@@ -76,7 +73,6 @@ const SystemDetails: FC<ISystemDetailsProps> = ({ systemId }) => {
 
   return (
     <div className="flex flex-col h-full overflow-hidden ">
-      {/* Header */}
       <div className=" py-1 pb-1 border-b">
         <Typography variant="h3" fw="semibold">
           System Details
@@ -126,7 +122,6 @@ const SystemDetails: FC<ISystemDetailsProps> = ({ systemId }) => {
         </div>
       </div>
 
-      {/* Scrollable middle: child list */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className=" pt-3">
           <Typography variant="body" fw="semibold">
@@ -152,7 +147,6 @@ const SystemDetails: FC<ISystemDetailsProps> = ({ systemId }) => {
           ))}
         </ul>
 
-        {/* Sticky footer: add new child */}
         <div className="sticky bottom-0 bg-white pt-4 flex gap-2">
           <Input
             placeholder="Enter a new system name"

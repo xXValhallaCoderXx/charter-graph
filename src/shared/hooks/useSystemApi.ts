@@ -11,22 +11,22 @@ import type { System } from "@/shared/slices/system/system.types";
 import { SystemInterface } from "@/shared/slices/interface/interface.types";
 import { QUERY_KEYS } from "@/shared/slices/query-keys";
 
-// Fetch a single system
+
 export function useFetchSystem(id: string) {
   return useQuery<System, PostgrestError>({
     queryKey: QUERY_KEYS.system(id),
     queryFn: () => fetchSystemById(id),
-    enabled: !!id, // skip query if no id provided
+    enabled: !!id,
     staleTime: 30_000,
   });
 }
 
-// Fetch direct child systems
+
 export function useFetchDescendants(id: string) {
   return useQuery<System[], PostgrestError>({
     queryKey: QUERY_KEYS.descendants(id),
     queryFn: () => fetchDescendants(id),
-    enabled: !!id, // skip query if no id provided
+    enabled: !!id,
     staleTime: 30_000,
   });
 }
@@ -46,19 +46,19 @@ export function useUpdateSystem(id: string) {
   });
 }
 
-// Create a new child under a given parent system
+
 export function useCreateChildSystem(parentId: string) {
   const qc = useQueryClient();
 
   return useMutation<
-    { system: System; iface: SystemInterface }, // TData
-    PostgrestError, // TError
-    string // TVariables
+    { system: System; iface: SystemInterface },
+    PostgrestError,
+    string
   >({
     mutationFn: (name) => createSystemAndInterface(name, "service", parentId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: QUERY_KEYS.descendants(parentId) });
-       qc.invalidateQueries({ queryKey: QUERY_KEYS.interfaces(parentId) });
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.interfaces(parentId) });
       qc.invalidateQueries({ queryKey: ["graph-data"], exact: false });
     },
   });

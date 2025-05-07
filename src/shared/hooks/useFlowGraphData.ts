@@ -13,11 +13,10 @@ export interface FlowData {
 export function useFlowData(
   rootId?: string
 ): UseQueryResult<FlowData, PostgrestError> {
-  // in-memory map so each type always gets the same color this session
+  // in-memory map so each type always gets the same color
   const typeColorMap = new Map<string, string>();
   function getColorForType(type: string): string {
     if (!typeColorMap.has(type)) {
-      // hash → 0–359 hue
       const hue = stringHash(type) % 360;
       typeColorMap.set(type, `hsl(${hue}, 70%, 60%)`);
     }
@@ -48,7 +47,7 @@ export function useFlowData(
       });
 
       const edges: Edge[] = rawEdges.map((intf) => ({
-        id: intf.id.toString(), // ← string!
+        id: intf.id.toString(),
         source: intf.system_a_id.toString(),
         target: intf.system_b_id.toString(),
         animated: intf.directional,

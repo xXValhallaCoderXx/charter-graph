@@ -2,7 +2,7 @@ import { FC, ReactNode, ButtonHTMLAttributes } from "react";
 import { cx } from "@/shared/lib/class-joiner";
 
 export interface ActionIconProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  children: ReactNode; // Should be a Tabler icon component
+  children: ReactNode;
   size?: "xs" | "sm" | "md" | "lg";
   color?: "default" | "primary" | "danger";
   rounded?: boolean;

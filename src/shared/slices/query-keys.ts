@@ -1,4 +1,3 @@
-// Shared query key prefixes
 export const QUERY_KEYS = {
   graphData: (rootId?: string) => ["graph-data", rootId] as const,
   system: (id: string) => ["system", id] as const,

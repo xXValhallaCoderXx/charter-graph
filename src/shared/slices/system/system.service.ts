@@ -43,7 +43,7 @@ export async function fetchDescendants(rootId: string): Promise<System[]> {
   return descendants;
 }
 
-// --- Fetchers for Interfaces ---
+
 export async function fetchAllInterfaces(): Promise<SystemInterface[]> {
   const { data, error } = await supabase
     .from("system_interfaces")
@@ -56,7 +56,6 @@ export async function fetchInterfacesBySystemIds(
   ids: string[]
 ): Promise<SystemInterface[]> {
   if (ids.length === 0) {
-    // no root, return empty list
     return [];
   }
   // join IDs without quotes to match integer columns
@@ -69,7 +68,6 @@ export async function fetchInterfacesBySystemIds(
   return data!;
 }
 
-// --- Combined Graph Fetcher ---
 export async function fetchGraph(rootId?: string): Promise<Graph> {
   if (!rootId) {
     const [nodes, edges] = await Promise.all([
@@ -79,7 +77,6 @@ export async function fetchGraph(rootId?: string): Promise<Graph> {
     return { nodes, edges };
   }
 
-  // 1) Root
   const root = await fetchSystemById(rootId);
 
   // 2) Level 1 children
@@ -108,7 +105,7 @@ export async function fetchGraph(rootId?: string): Promise<Graph> {
 
   return { nodes, edges };
 }
-// --- Mutators for Systems ---
+
 export async function createSystem(
   name: string,
   category: string,

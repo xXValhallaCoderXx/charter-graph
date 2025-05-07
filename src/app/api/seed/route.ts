@@ -14,7 +14,7 @@ export async function POST() {
     await seedDatabase(supabase);
     return NextResponse.json({ success: true });
   } catch (err: any) {
-    console.error("Seed error:", err);
+
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

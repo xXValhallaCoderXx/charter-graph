@@ -37,14 +37,12 @@ const GraphPanel = () => {
     useEffect(() => {
       if (!data) return;
 
-      // 1) Destructure both nodes & edges
       const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedNodes(
         data.nodes,
         data.edges,
         selectedId
       );
 
-      // 2) Always replace your edges with the newly–styled ones
       setEdges(layoutedEdges);
 
       // 3) Merge positions but use layoutedNodes instead of fullLayout

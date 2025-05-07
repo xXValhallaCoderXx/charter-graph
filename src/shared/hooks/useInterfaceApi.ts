@@ -9,9 +9,7 @@ import {
 import { SystemInterface } from "@/shared/slices/interface/interface.types";
 import { QUERY_KEYS } from "@/shared/slices/query-keys";
 
-/**
- * Hook: fetch all interfaces for a given root (and its descendants)
- */
+
 export function useFetchInterfaces(rootId?: string) {
   return useQuery<SystemInterface[], PostgrestError>({
     queryKey: QUERY_KEYS.interfaces(rootId),
@@ -24,9 +22,6 @@ export function useFetchInterfaces(rootId?: string) {
   });
 }
 
-/**
- * Hook: create a new interface and invalidate caches
- */
 export function useCreateInterface(rootId?: string) {
   const qc = useQueryClient();
   return useMutation<
@@ -37,15 +32,11 @@ export function useCreateInterface(rootId?: string) {
     mutationFn: (payload) => createInterface(payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: QUERY_KEYS.interfaces(rootId) });
-      //   qc.invalidateQueries({ queryKey: QUERY_KEYS.graphData(rootId) });
       qc.invalidateQueries({ queryKey: ["graph-data"], exact: false });
     },
   });
 }
 
-/**
- * Hook: update an existing interface and invalidate caches
- */
 export function useUpdateInterface(rootId?: string) {
   const qc = useQueryClient();
   return useMutation<
@@ -56,22 +47,17 @@ export function useUpdateInterface(rootId?: string) {
     mutationFn: ({ id, ...updates }) => updateInterface(id, updates),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: QUERY_KEYS.interfaces(rootId) });
-      //   qc.invalidateQueries({ queryKey: QUERY_KEYS.graphData(rootId) });
       qc.invalidateQueries({ queryKey: ["graph-data"], exact: false });
     },
   });
 }
 
-/**
- * Hook: delete an interface by ID and invalidate caches
- */
 export function useDeleteInterface(rootId?: string) {
   const qc = useQueryClient();
   return useMutation<void, PostgrestError, string>({
     mutationFn: (id) => deleteInterface(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: QUERY_KEYS.interfaces(rootId) });
-      //   qc.invalidateQueries({ queryKey: QUERY_KEYS.graphData(rootId) });
       qc.invalidateQueries({ queryKey: ["graph-data"], exact: false });
     },
   });

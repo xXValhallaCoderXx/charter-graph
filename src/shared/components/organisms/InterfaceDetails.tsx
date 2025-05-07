@@ -32,7 +32,7 @@ const InterfaceDetails = ({ systemId }: IInterfaceDetailsProps) => {
     if (!graph) return [];
     return graph.nodes.map((node) => ({
       value: node.id,
-      label: (node.data as any).label, // adjust if you store name differently
+      label: (node.data as any).label,
     }));
   }, [graph]);
 
@@ -48,7 +48,6 @@ const InterfaceDetails = ({ systemId }: IInterfaceDetailsProps) => {
       </div>
 
       <div className="flex-1 overflow-y-auto px-2 py-2 space-y-2 mt-2">
-        {/* No system selected */}
         {!systemId && (
           <div className="h-full flex items-center justify-center">
             <Typography variant="body" fw="normal">
@@ -57,7 +56,6 @@ const InterfaceDetails = ({ systemId }: IInterfaceDetailsProps) => {
           </div>
         )}
 
-        {/* Empty list */}
         {systemId && !isLoading && ifaces.length === 0 && (
           <div className="text-neutral-500">No interfaces found</div>
         )}
@@ -71,7 +69,6 @@ const InterfaceDetails = ({ systemId }: IInterfaceDetailsProps) => {
           </div>
         )} */}
 
-        {/* Actual list */}
         {!isLoading && ifaces.length > 0 && (
           <ul className="space-y-2">
             {ifaces.map((iface: SystemInterface) => (
@@ -113,7 +110,6 @@ const InterfaceDetails = ({ systemId }: IInterfaceDetailsProps) => {
         )}
       </div>
 
-      {/* ── Sticky Footer: Add New Interface ── */}
       <div className="sticky bottom-0 border-t pt-3">
         <Typography variant="body" fw="semibold" className="mb-2">
           Add New Interface
