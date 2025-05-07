@@ -15,8 +15,6 @@ export function useFlowData(
   return useQuery<FlowData, PostgrestError>({
     queryKey: ["graph-data", rootId],
     queryFn: async () => {
-      console.log("Fetching graph data...");
-      console.log("Root ID: ", rootId);
       const { nodes: rawNodes, edges: rawEdges } = await fetchGraph(rootId);
 
       // 2) map to React-Flow shapes

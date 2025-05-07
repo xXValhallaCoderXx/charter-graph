@@ -62,47 +62,58 @@ const SystemDetails: FC<ISystemDetailsProps> = ({ systemId }) => {
     setCategory("");
     setName("");
     router.replace(`/`);
-    // router.replace(`/?rootId=${system.parent_id}`, { shallow: true });
   };
 
   const handleAddChild = (childName: string) => {
     if (childName.trim()) {
-      console.log("ADD CHILD");
       createChildM.mutate(childName.trim());
     }
   };
 
+  const onClickChildSystem = (childId: string) => () => {
+    router.replace(`/?rootId=${childId}&selectedId=${childId}`);
+  };
+
   return (
-    <div className="h-[100%]">
-      <div className="flex flex-col md:flex-row gap-4 mb-4  ">
-        <label className="block w-full md:w-1/2">
+    <div className="flex flex-col h-full overflow-hidden ">
+      {/* Header */}
+      <div className=" py-1 pb-1 border-b">
+        <Typography variant="h3" fw="semibold">
+          System Details
+        </Typography>
+      </div>
+      <div className="  flex flex-col md:flex-row gap-4 mt-4">
+        <label className="flex-1">
           <Typography as="span" size="sm" fw="semibold">
             Name
           </Typography>
           <Skeleton isLoading={loadingSys || isLoadingDescendants}>
             <Input
-              value={name}
+              value={systemId ? name : ""}
               disabled={!systemId}
               onChange={(e) => setName(e.target.value)}
               onBlur={handleNameBlur}
+              className="mt-1"
             />
           </Skeleton>
         </label>
 
-        <label className="block w-full md:w-1/2">
+        <label className="flex-1">
           <Typography as="span" size="sm" fw="semibold">
             Category
           </Typography>
           <Skeleton isLoading={loadingSys || isLoadingDescendants}>
             <Input
-              value={category}
+              value={systemId ? category : ""}
               disabled={!systemId}
               onChange={(e) => setCategory(e.target.value)}
               onBlur={handleCategoryBlur}
+              className="mt-1"
             />
           </Skeleton>
         </label>
-        <div className="flex   items-end">
+
+        <div className="flex items-end">
           <ActionIcon
             size="lg"
             onClick={handleDelete}
@@ -115,31 +126,34 @@ const SystemDetails: FC<ISystemDetailsProps> = ({ systemId }) => {
         </div>
       </div>
 
-      <hr className="my-4" />
-
-      <div className="flex flex-col h-full ">
-        <Typography variant="body" fw="semibold">
-          Child systems ({children.length})
-        </Typography>
-        <div className="flex-1 overflow-y-auto mb-4 pr-1 min-h-[80px] max-h-[21vh]">
-          <ul className="flex flex-col gap-1">
-            {children.map((child: System) => (
-              <li key={child.id} className="flex justify-between py-1">
-                <span className="text-blue-600 cursor-pointer">
-                  {child.name}
-                </span>
-                <Button
-                  size="xs"
-                  variant="outline"
-                  label="Remove"
-                  onClick={() => removeChildM.mutate(child.id)}
-                />
-              </li>
-            ))}
-          </ul>
+      {/* Scrollable middle: child list */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className=" pt-3">
+          <Typography variant="body" fw="semibold">
+            Child systems ({children.length})
+          </Typography>
         </div>
+        <ul className="pl-4 pr-2 pt-2 overflow-y-auto space-y-2 flex-1">
+          {children.map((child: System) => (
+            <li key={child.id} className="flex justify-between items-center">
+              <span
+                onClick={onClickChildSystem(child.id)}
+                className="text-primary-600 hover:underline cursor-pointer"
+              >
+                {child.name}
+              </span>
+              <Button
+                size="xs"
+                variant="outline"
+                label="Remove"
+                onClick={() => removeChildM.mutate(child.id)}
+              />
+            </li>
+          ))}
+        </ul>
 
-        <div className="flex gap-2">
+        {/* Sticky footer: add new child */}
+        <div className="sticky bottom-0 bg-white pt-4 flex gap-2">
           <Input
             placeholder="Enter a new system name"
             disabled={loadingSys || isLoadingDescendants || !systemId}
@@ -150,7 +164,7 @@ const SystemDetails: FC<ISystemDetailsProps> = ({ systemId }) => {
               }
             }}
           />
-          <div className="w-[180px] ">
+          <div className="w-40">
             <Button
               label="Add System"
               disabled={loadingSys || isLoadingDescendants || !systemId}

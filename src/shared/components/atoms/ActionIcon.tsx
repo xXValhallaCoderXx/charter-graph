@@ -1,8 +1,7 @@
 import { FC, ReactNode, ButtonHTMLAttributes } from "react";
 import { cx } from "@/shared/lib/class-joiner";
 
-export interface ActionIconProps
-  extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ActionIconProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode; // Should be a Tabler icon component
   size?: "xs" | "sm" | "md" | "lg";
   color?: "default" | "primary" | "danger";
@@ -33,6 +32,8 @@ const colorMap = {
   },
 };
 
+const disabledClass = "opacity-50 cursor-not-allowed pointer-events-none";
+
 export const ActionIcon: FC<ActionIconProps> = ({
   children,
   size = "md",
@@ -41,6 +42,7 @@ export const ActionIcon: FC<ActionIconProps> = ({
   tooltip,
   variant = "filled",
   className,
+  disabled,
   ...props
 }) => (
   <button
@@ -50,9 +52,11 @@ export const ActionIcon: FC<ActionIconProps> = ({
       sizeMap[size],
       colorMap[color][variant],
       rounded ? "rounded-full" : "rounded",
+      disabled && disabledClass,
       className
     )}
     title={tooltip}
+    disabled={disabled}
     {...props}
   >
     {children}

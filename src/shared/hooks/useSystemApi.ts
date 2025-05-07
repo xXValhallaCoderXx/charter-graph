@@ -58,6 +58,7 @@ export function useCreateChildSystem(parentId: string) {
     mutationFn: (name) => createSystemAndInterface(name, "service", parentId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: QUERY_KEYS.descendants(parentId) });
+       qc.invalidateQueries({ queryKey: QUERY_KEYS.interfaces(parentId) });
       qc.invalidateQueries({ queryKey: ["graph-data"], exact: false });
     },
   });
@@ -69,6 +70,9 @@ export function useRemoveChildSystem(parentId: string) {
     mutationFn: (childId) => deleteSystem(childId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: QUERY_KEYS.descendants(parentId) });
+             qc.invalidateQueries({
+               queryKey: QUERY_KEYS.interfaces(parentId),
+             });
       qc.invalidateQueries({ queryKey: ["graph-data"], exact: false });
     },
   });

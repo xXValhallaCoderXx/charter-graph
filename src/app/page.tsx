@@ -22,7 +22,7 @@ export default function Home() {
         <div className="flex flex-col lg:flex-row p-6 gap-8 ">
           <section
             id="flow-diagram "
-            style={{ height: "calc(100vh - 120px)" }}
+            style={{ height: "calc(100vh - 110px)" }}
             className="w-full lg:w-2/3 xl:w-5/6 flex gap-4 flex-col"
           >
             <div className="flex justify-between items-center">
@@ -34,15 +34,15 @@ export default function Home() {
           </section>
           <section
             id="system-details"
-            className="w-full lg:w-1/3 flex flex-col gap-4"
+            style={{ height: "calc(100vh - 110px)" }}
+            className="w-full lg:w-1/3 flex flex-col gap-6 pt-12"
           >
-            <Typography variant="h3">System Details</Typography>
             <Card>
               <SystemDetails systemId={selectedId} />
             </Card>
-            <Typography variant="h3">Interfaces</Typography>
+
             <Card>
-              <InterfaceDetails />
+              <InterfaceDetails systemId={selectedId} />
             </Card>
           </section>
         </div>
