@@ -8,6 +8,8 @@ import { getLayoutedNodes } from "@/shared/lib/dagre-layout";
 import {
   ReactFlow,
   Controls,
+  applyNodeChanges,
+  NodeChange,
   MiniMap,
   Background,
   useNodesState,
@@ -28,56 +30,73 @@ const GraphPanel = () => {
   const router = useRouter();
   const isMounted = useRef(false);
   const rootId = params.get("rootId") ?? undefined;
+  const posRef = useRef<Map<string, any>>(new Map());
+  const isFirstLayout = useRef(true);
   const selectedId = params.get("selectedId") ?? undefined;
-  const prevRoot = useRef<string | undefined>(rootId);
+
   const { data, isLoading, error } = useFlowData(rootId);
   const createInterfaceM = useCreateInterface();
-  const [nodes, setNodes, onNodesChange] = useNodesState(data?.nodes || []);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(data?.edges || []);
+  const [nodes, setNodesInternal] = useNodesState(data?.nodes || []);
+  const [edges, setEdgesInternal, onEdgesChange] = useEdgesState(
+    data?.edges || []
+  );
+
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) => {
+      setNodesInternal((nds) => {
+        const updated = applyNodeChanges(changes, nds);
+        updated.forEach((n) => {
+          // capture every manual drag
+          posRef.current.set(n.id, n.position);
+        });
+        return updated;
+      });
+    },
+    [setNodesInternal]
+  );
 
   useEffect(() => {
     if (!data) return;
 
-    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedNodes(
+    // 2a) compute a fresh Dagre layout (positions for this view)
+    const { nodes: layoutNodes, edges: layoutEdges } = getLayoutedNodes(
       data.nodes,
       data.edges,
       selectedId
     );
+    setEdgesInternal(layoutEdges);
 
-    setEdges(layoutedEdges);
-
-    // 3) Merge positions but use layoutedNodes instead of fullLayout
-    setNodes((currentNodes) => {
-      // if the root changed, just throw away all old positions
-      if (prevRoot.current !== rootId) {
-        prevRoot.current = rootId;
-        return layoutedNodes;
-      }
-
-      // otherwise preserve the old positions for existing nodes
-      const posMap = Object.fromEntries(
-        currentNodes.map((n) => [n.id, n.position])
+    if (isFirstLayout.current) {
+      // very first time: stash _all_ positions
+      layoutNodes.forEach((n) => {
+        posRef.current.set(n.id, n.position);
+      });
+      setNodesInternal(layoutNodes);
+      isFirstLayout.current = false;
+    } else {
+      // thereafter: for each node in this view, pick up our cached position if we have one
+      setNodesInternal(
+        layoutNodes.map((n) => ({
+          ...n,
+          position: posRef.current.get(n.id) ?? n.position,
+        }))
       );
-
-      return layoutedNodes.map((n) => ({
-        ...n,
-        position: posMap[n.id] ?? n.position,
-      }));
-    });
-  }, [data, rootId, selectedId, setNodes, setEdges]);
+    }
+  }, [data, selectedId, setNodesInternal, setEdgesInternal]);
 
   const onConnect = useCallback(
-    (params: Connection) => {
-      setEdges((eds) => addEdge(params, eds));
+    (connection: Connection) => {
+      setEdgesInternal((eds) => addEdge(connection, eds));
       createInterfaceM.mutate({
-        system_a_id: params.source,
-        system_b_id: params.target,
+        system_a_id: connection.source,
+        system_b_id: connection.target,
         connection_type: "default",
         directional: false,
       });
     },
-    [setEdges, createInterfaceM]
+    [setEdgesInternal, createInterfaceM]
   );
+
   if (isLoading && !isMounted) return <div>Loading graph…</div>;
   if (error) return <div>Error loading graph: {error.message}</div>;
   isMounted.current = true;
