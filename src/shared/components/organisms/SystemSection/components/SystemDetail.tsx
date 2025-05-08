@@ -42,7 +42,6 @@ const SystemDetail = ({
   }, [system]);
 
   const handleSave = () => {
-    // basic validation
     if (!name.trim() || !category.trim()) return;
     onClickUpdateSystem(systemId, {
       name: name.trim(),
@@ -52,7 +51,6 @@ const SystemDetail = ({
   };
 
   const handleCancel = () => {
-    // revert
     setName(system?.name ?? "");
     setCategory(system?.category ?? "");
     setEditing(false);
@@ -67,7 +65,7 @@ const SystemDetail = ({
 
   if (isEditing) {
     return (
-      <div className="flex flex-col md:flex-row gap-4 mt-2 h-18 ">
+      <div className="flex flex-row gap-4 mt-2 h-18 ">
         <label className="flex-1">
           <Typography as="span" size="sm" fw="semibold">
             Name
@@ -114,7 +112,7 @@ const SystemDetail = ({
   }
 
   return (
-    <div className="  flex flex-col md:flex-row gap-4 pt-[3px] mt-2 h-18 ">
+    <div className="  flex flex-row gap-4 pt-[3px] mt-2 h-18 ">
       <label className="flex-1 flex-col flex">
         <Typography as="span" size="sm" fw="semibold">
           Name
