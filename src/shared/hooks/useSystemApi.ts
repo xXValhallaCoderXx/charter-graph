@@ -6,6 +6,7 @@ import {
   fetchDistinctCategories,
   deleteSystem,
   fetchDescendants,
+  createSystem,
   createSystemAndInterface,
 } from "@/shared/slices/system/system.service";
 import type { System } from "@/shared/slices/system/system.types";
@@ -22,6 +23,25 @@ export function useFetchSystem(id: string) {
   });
 }
 
+
+
+
+export function useCreateSystem() {
+  const qc = useQueryClient();
+  return useMutation<
+    System,
+    PostgrestError,
+    { name: string; category: string }
+  >({
+    mutationFn: ({ name, category }) => createSystem(name, category),
+    onSuccess: (newSystem) => {
+      // 1) refresh the whole graph
+      qc.invalidateQueries({ queryKey: ["graph-data"] });
+      // 2) prime the single-system cache
+      qc.setQueryData(QUERY_KEYS.system(newSystem.id), newSystem);
+    },
+  });
+}
 
 export function useFetchDescendants(id: string) {
   return useQuery<System[], PostgrestError>({

@@ -120,9 +120,14 @@ export async function createSystem(
 ): Promise<System> {
   const { data, error } = await supabase
     .from("systems")
+    // insert then immediately ask for the row columns you need
     .insert({ name, category, parent_id: parentId ?? null })
+    .select("id, name, category, parent_id")
     .single();
-  if (error) throw error;
+
+  if (error) {
+    throw error;
+  }
   return data as System;
 }
 

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { Typography } from "@/shared/components/atoms";
+import { ActionIcon, Typography } from "@/shared/components/atoms";
 import { useFlowData } from "@/shared/hooks/useFlowGraphData";
 import { Legend } from "@/shared/components/molecues";
 import { toast } from "react-toastify";
@@ -22,9 +22,11 @@ import {
   BackgroundVariant,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+
 import { useCreateInterface } from "@/shared/hooks/useInterfaceApi";
-import { IconArrowBack } from "@tabler/icons-react";
-import { useCallback, useEffect, useRef } from "react";
+import { IconArrowBack, IconPlus } from "@tabler/icons-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import AddSystemModal from "./AddSystemModal";
 
 const GraphPanel = () => {
   const params = useSearchParams();
@@ -34,9 +36,11 @@ const GraphPanel = () => {
   const posRef = useRef<Map<string, any>>(new Map());
   const isFirstLayout = useRef(true);
   const selectedId = params.get("selectedId") ?? undefined;
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const { data, isLoading, error } = useFlowData(rootId);
   const createInterfaceM = useCreateInterface();
+
   const [nodes, setNodesInternal] = useNodesState(data?.nodes || []);
   const [edges, setEdgesInternal, onEdgesChange] = useEdgesState(
     data?.edges || []
@@ -144,13 +148,26 @@ const GraphPanel = () => {
               <IconArrowBack /> Back to Root
             </button>
           ) : (
-            <Typography fw="semibold">Root Node</Typography>
+            <div className="flex gap-4 items-center">
+              <Typography fw="semibold">Root Node</Typography>
+              <ActionIcon
+                onClick={() => setIsCreateModalOpen(true)}
+                color="primary"
+                rounded={false}
+              >
+                <IconPlus />
+              </ActionIcon>
+            </div>
           )}
         </Panel>
       </ReactFlow>
       <div className="absolute top-18 right-6">
         <Legend nodes={nodes} />
       </div>
+      <AddSystemModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      />
     </div>
   );
 };
