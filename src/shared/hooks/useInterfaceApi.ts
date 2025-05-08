@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { PostgrestError } from "@supabase/supabase-js";
 import {
@@ -52,7 +53,7 @@ export function useCreateInterface(rootId?: string) {
   >({
     mutationFn: (payload) => createInterface(payload),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: QUERY_KEYS.interfaces(rootId) });
+      qc.invalidateQueries({ queryKey: ["interfaces"], exact: false });
       qc.invalidateQueries({ queryKey: ["graph-data"], exact: false });
     },
   });

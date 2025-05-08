@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useState, FC } from "react";
+import { toast } from "react-toastify";
 import { useCreateInterface } from "@/shared/hooks/useInterfaceApi";
 import { Button, Select } from "@/shared/components/molecues";
 import { Typography, Input, Skeleton } from "@/shared/components/atoms";
@@ -16,11 +17,35 @@ const AddInterfaceForm: FC<IAddInterfaceFormProps> = ({
   isLoading,
   options,
 }) => {
-  const [newType, setNewType] = useState("");
-  const [newOther, setNewOther] = useState("");
+  const [connectionType, setConnectionType] = useState("");
+  const [connectedSystem, setConnectedSystem] = useState("");
   const [newDirectional, setNewDirectional] = useState(false);
 
   const createM = useCreateInterface(systemId);
+
+  const handleAdd = () => {
+    if (!systemId || !connectionType.trim()) return;
+
+    createM.mutate(
+      {
+        system_a_id: systemId,
+        system_b_id: connectedSystem,
+        connection_type: connectionType.trim(),
+        directional: newDirectional,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Interface added");
+          setConnectionType("");
+          setConnectedSystem("");
+          setNewDirectional(false);
+        },
+        onError: (err) => {
+          toast.error(`Add failed: ${err.message}`);
+        },
+      }
+    );
+  };
 
   return (
     <>
@@ -36,8 +61,8 @@ const AddInterfaceForm: FC<IAddInterfaceFormProps> = ({
             <Input
               disabled={!systemId}
               placeholder="e.g. REST"
-              value={newType}
-              onChange={(e) => setNewType(e.target.value)}
+              value={connectionType}
+              onChange={(e) => setConnectionType(e.target.value)}
               className="mt-1"
             />
           </Skeleton>
@@ -50,9 +75,9 @@ const AddInterfaceForm: FC<IAddInterfaceFormProps> = ({
           <Skeleton isLoading={isLoading}>
             <Select
               onChange={(e) => {
-                setNewOther(e?.target?.value);
+                setConnectedSystem(e?.target?.value);
               }}
-              value={newOther}
+              value={connectedSystem}
               disabled={!systemId}
               className="mt-1 w-full"
               options={[{ value: "", label: "— none —" }, ...options]}
@@ -77,17 +102,7 @@ const AddInterfaceForm: FC<IAddInterfaceFormProps> = ({
           <Button
             label="Add Interface"
             disabled={!systemId || createM.isPending}
-            onClick={() => {
-              createM.mutate({
-                system_a_id: systemId!,
-                system_b_id: newOther,
-                connection_type: newType,
-                directional: newDirectional,
-              });
-              setNewType("");
-              setNewOther("");
-              setNewDirectional(false);
-            }}
+            onClick={handleAdd}
           />
         </div>
       </div>

@@ -1,5 +1,5 @@
 "use client";
-import { useFetchSystem, useUpdateSystem } from "@/shared/hooks/useSystemApi";
+import { useFetchSystem } from "@/shared/hooks/useSystemApi";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
@@ -9,16 +9,19 @@ import {
   Input,
   ActionIcon,
 } from "@/shared/components/atoms";
+import { System } from "@/shared/slices/system/system.types";
 import { IconTrash } from "@tabler/icons-react";
 
 interface ISystemDetailProps {
   systemId: string;
   onClickRemoveSystem: (systemId: string) => void;
+  onClickUpdateSystem: (id: string, data: Partial<System>) => void;
 }
 
 const SystemDetail = ({
   systemId,
   onClickRemoveSystem,
+  onClickUpdateSystem,
 }: ISystemDetailProps) => {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -32,17 +35,15 @@ const SystemDetail = ({
     }
   }, [system]);
 
-  const updateSystemM = useUpdateSystem(systemId);
-
   const handleNameBlur = () => {
     if (name !== system?.name) {
-      updateSystemM.mutate({ name });
+      onClickUpdateSystem(systemId, { name });
     }
   };
 
   const handleCategoryBlur = () => {
     if (category !== system?.category) {
-      updateSystemM.mutate({ category });
+      onClickUpdateSystem(systemId, { category });
     }
   };
 

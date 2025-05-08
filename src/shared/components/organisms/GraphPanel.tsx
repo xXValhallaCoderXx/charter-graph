@@ -3,6 +3,7 @@
 import { Typography } from "@/shared/components/atoms";
 import { useFlowData } from "@/shared/hooks/useFlowGraphData";
 import { Legend } from "@/shared/components/molecues";
+import { toast } from "react-toastify";
 import { useSearchParams, useRouter } from "next/navigation";
 import { getLayoutedNodes } from "@/shared/lib/dagre-layout";
 import {
@@ -87,12 +88,22 @@ const GraphPanel = () => {
   const onConnect = useCallback(
     (connection: Connection) => {
       setEdgesInternal((eds) => addEdge(connection, eds));
-      createInterfaceM.mutate({
-        system_a_id: connection.source,
-        system_b_id: connection.target,
-        connection_type: "default",
-        directional: false,
-      });
+      createInterfaceM.mutate(
+        {
+          system_a_id: connection.source,
+          system_b_id: connection.target,
+          connection_type: "default",
+          directional: false,
+        },
+        {
+          onSuccess: () => {
+            toast.success("Interface created");
+          },
+          onError: (err) => {
+            toast.error(`Failed to create interface: ${err.message}`);
+          },
+        }
+      );
     },
     [setEdgesInternal, createInterfaceM]
   );

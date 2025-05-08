@@ -6,55 +6,11 @@ import {
   useUpdateInterface,
   useDeleteInterface,
 } from "@/shared/hooks/useInterfaceApi";
+import { toast } from "react-toastify";
 import { IconCheck, IconCancel } from "@tabler/icons-react";
 import { Typography, Input, ActionIcon } from "@/shared/components/atoms";
 import { Select } from "@/shared/components/molecues";
 import { SystemInterface } from "@/shared/slices/interface/interface.types";
-
-type Option = { value: string; label: string };
-
-interface Node {
-  id: string;
-  data: { label: string; [k: string]: any };
-  // ...you only really need `id` and `data.label`
-}
-interface Edge {
-  source: string;
-  target: string;
-  // ...you only need those two to detect existing connections
-}
-
-export function buildAvailableInterfaceOptions(
-  nodes: Node[],
-  edges: Edge[]
-): Option[] {
-  if (!nodes || !edges) return [];
-  // 1) Build a Set of existing undirected pairs
-  const taken = new Set<string>();
-  for (const { source, target } of edges) {
-    // sort so "A-B" and "B-A" map to the same key
-    const [a, b] = source < target ? [source, target] : [target, source];
-    taken.add(`${a}—${b}`);
-  }
-
-  // 2) For each unordered pair of nodes, if it’s not in `taken`, add an Option
-  const options: Option[] = [];
-  for (let i = 0; i < nodes.length; i++) {
-    for (let j = i + 1; j < nodes.length; j++) {
-      const a = nodes[i],
-        b = nodes[j],
-        key = `${a.id}—${b.id}`;
-
-      if (!taken.has(key)) {
-        options.push({
-          value: a.id,
-          label: `${a.data.label} ↔ ${b.data.label}`,
-        });
-      }
-    }
-  }
-  return options;
-}
 
 interface IIinterfaceListProps {
   systemId: string;
@@ -80,27 +36,51 @@ const InterfaceList: FC<IIinterfaceListProps> = ({
   const nameById = useMemo(() => {
     if (!graph) return new Map<string, string>();
     return new Map(
-      // @ts-ignore
-      graph.nodes.map((node) => [node.id, (node.data as any).label as string])
+      graph.nodes.map((node: any) => [
+        node.id,
+        (node.data as any).label as string,
+      ])
     );
   }, [graph]);
 
-  function startEdit(iface: SystemInterface) {
+  const startEdit = (iface: SystemInterface) => {
     setEditingId(iface.id.toString());
     setEditType(iface.connection_type);
     setEditOther(iface.system_b_id.toString());
     setEditDirectional(iface.directional);
-  }
+  };
 
-  // helper to cancel
-  function cancelEdit() {
-    setEditingId(null);
-  }
+  const cancelEdit = () => setEditingId(null);
+
+  const handleUpdateInterface = (id: string) => () => {
+    updateM.mutate(
+      {
+        id,
+        connection_type: editType,
+        system_b_id: editOther,
+        directional: editDirectional,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Interface updated");
+          cancelEdit();
+        },
+        onError: (err) => toast.error(`Update failed: ${err.message}`),
+      }
+    );
+  };
+
+  const handleDeleteInterface = (id: string) => () => {
+    deleteM.mutate(id, {
+      onSuccess: () => toast.success("Interface deleted"),
+      onError: (err) => toast.error(`Delete failed: ${err.message}`),
+    });
+  };
   return (
     <ul className="space-y-2">
       {ifaces.map((iface: SystemInterface) => {
         const idStr = iface.id.toString();
-        // if this row is in edit mode:
+
         if (editingId === idStr) {
           return (
             <li
@@ -134,15 +114,7 @@ const InterfaceList: FC<IIinterfaceListProps> = ({
                   <ActionIcon rounded={false} variant="transparent">
                     <IconCheck
                       color="green"
-                      onClick={() => {
-                        updateM.mutate({
-                          id: iface.id,
-                          connection_type: editType,
-                          system_b_id: editOther,
-                          directional: editDirectional,
-                        });
-                        setEditingId(null);
-                      }}
+                      onClick={handleUpdateInterface(iface.id.toString())}
                     />
                   </ActionIcon>
                   <ActionIcon
@@ -154,21 +126,6 @@ const InterfaceList: FC<IIinterfaceListProps> = ({
                   </ActionIcon>
                 </div>
               </div>
-              {/* <div className="flex gap-2 justify-end">
-                <Button
-                  label="Save"
-                  onClick={() => {
-                    updateM.mutate({
-                      id: iface.id,
-                      connection_type: editType,
-                      system_b_id: editOther,
-                      directional: editDirectional,
-                    });
-                    setEditingId(null);
-                  }}
-                />
-                <Button label="Cancel" variant="outline" onClick={cancelEdit} />
-              </div> */}
             </li>
           );
         }
@@ -196,7 +153,7 @@ const InterfaceList: FC<IIinterfaceListProps> = ({
               </button>
               <button
                 className="text-red-600 hover:underline text-sm"
-                onClick={() => deleteM.mutate(iface.id)}
+                onClick={handleDeleteInterface(iface.id.toString())}
               >
                 Delete
               </button>

@@ -45,12 +45,8 @@ const SystemSection: FC = () => {
 
   const handleRemoveChildSystem = (childId: string) => {
     removeChildM.mutate(childId, {
-      onSuccess: () => {
-        toast.success("System removed successfully");
-      },
-      onError: () => {
-        toast.error("Failed to remove system");
-      },
+      onSuccess: () => toast.success("System removed successfully"),
+      onError: () => toast.error("Failed to remove system"),
     });
   };
 
@@ -64,6 +60,7 @@ const SystemSection: FC = () => {
       <SystemDetail
         systemId={systemId}
         onClickRemoveSystem={handleRemoveChildSystem}
+        onClickUpdateSystem={handleUpdateSystem}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className=" pt-3">
