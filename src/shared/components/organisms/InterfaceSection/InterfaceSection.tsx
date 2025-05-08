@@ -35,7 +35,6 @@ const InterfaceDetails = () => {
 
   return (
     <div className="flex flex-col h-full  overflow-hidden px-1">
-
       <div className="py-1 border-b">
         <Typography variant="h3" fw="semibold">
           Interfaces ({ifaces?.length || 0})

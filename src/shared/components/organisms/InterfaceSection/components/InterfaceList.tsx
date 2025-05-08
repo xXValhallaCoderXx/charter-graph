@@ -77,7 +77,7 @@ const InterfaceList: FC<IIinterfaceListProps> = ({
     });
   };
   return (
-    <ul className="space-y-2">
+    <ul className="space-y-2 ">
       {ifaces.map((iface: SystemInterface) => {
         const idStr = iface.id.toString();
 
