@@ -51,7 +51,7 @@ const SystemSection: FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full overflow-hidden ">
+    <div className="flex flex-col h-full overflow-hidden p-2">
       <div className=" py-1 pb-1 border-b">
         <Typography variant="h3" fw="semibold">
           System Details
