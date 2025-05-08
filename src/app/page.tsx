@@ -1,6 +1,7 @@
 'use client';
 import { useState, Suspense } from "react";
 import dynamic from "next/dynamic";
+import { ToastContainer, Slide } from "react-toastify";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppHeader } from "@/shared/components/organisms";
 import { Typography, Card } from "@/shared/components/atoms";
@@ -62,6 +63,11 @@ export default function Home() {
           </section>
         </div>
       </div>
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        transition={Slide}
+      />
     </QueryClientProvider>
   );
 }

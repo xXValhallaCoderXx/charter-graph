@@ -3,6 +3,7 @@ import {
   useFetchDescendants,
   useFetchCategories,
 } from "@/shared/hooks/useSystemApi";
+import { toast } from "react-toastify";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   useRemoveChildSystem,
@@ -25,7 +26,6 @@ const SystemSection: FC = () => {
   const { data: children = [], isLoading: isLoadingDescendants } =
     useFetchDescendants(systemId);
 
-
   const removeChildM = useRemoveChildSystem(systemId);
   const updateSystem = useLazyUpdateSystem();
 
@@ -33,10 +33,24 @@ const SystemSection: FC = () => {
     router.replace(`/?rootId=${childId}&selectedId=${childId}`);
   };
 
-  const handleUpdateSystem = (_id: string, _data: Partial<System>) => {
-    updateSystem.mutate({
-      id: _id,
-      data: _data,
+  const handleUpdateSystem = (id: string, data: Partial<System>) => {
+    updateSystem.mutate(
+      { id, data },
+      {
+        onSuccess: () => toast.success("System updated successfully"),
+        onError: () => toast.error("Failed to update system"),
+      }
+    );
+  };
+
+  const handleRemoveChildSystem = (childId: string) => {
+    removeChildM.mutate(childId, {
+      onSuccess: () => {
+        toast.success("System removed successfully");
+      },
+      onError: () => {
+        toast.error("Failed to remove system");
+      },
     });
   };
 
@@ -47,7 +61,10 @@ const SystemSection: FC = () => {
           System Details
         </Typography>
       </div>
-      <SystemDetail systemId={systemId} />
+      <SystemDetail
+        systemId={systemId}
+        onClickRemoveSystem={handleRemoveChildSystem}
+      />
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className=" pt-3">
           <Typography variant="body" fw="semibold">
@@ -62,7 +79,7 @@ const SystemSection: FC = () => {
               child={child}
               isLoading={isLoadingDescendants}
               onClickChildSystem={handleNavigateToChildSystem}
-              onClickRemove={removeChildM.mutate}
+              onClickRemove={handleRemoveChildSystem}
               onClickUpdate={handleUpdateSystem}
             />
           ))}

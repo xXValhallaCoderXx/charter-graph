@@ -1,9 +1,5 @@
 "use client";
-import {
-  useFetchSystem,
-  useRemoveChildSystem,
-  useUpdateSystem,
-} from "@/shared/hooks/useSystemApi";
+import { useFetchSystem, useUpdateSystem } from "@/shared/hooks/useSystemApi";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
@@ -17,14 +13,17 @@ import { IconTrash } from "@tabler/icons-react";
 
 interface ISystemDetailProps {
   systemId: string;
+  onClickRemoveSystem: (systemId: string) => void;
 }
 
-const SystemDetail = ({ systemId }: ISystemDetailProps) => {
+const SystemDetail = ({
+  systemId,
+  onClickRemoveSystem,
+}: ISystemDetailProps) => {
   const router = useRouter();
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const { data: system, isLoading: loadingSys } = useFetchSystem(systemId);
-  const removeChildM = useRemoveChildSystem(systemId);
 
   useEffect(() => {
     if (system) {
@@ -48,7 +47,7 @@ const SystemDetail = ({ systemId }: ISystemDetailProps) => {
   };
 
   const handleDelete = () => {
-    removeChildM.mutate(systemId);
+    onClickRemoveSystem(systemId);
     setCategory("");
     setName("");
     router.replace(`/`);
