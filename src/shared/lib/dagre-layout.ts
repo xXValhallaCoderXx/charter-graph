@@ -6,9 +6,13 @@ export function getLayoutedNodes(
   rawEdges: Edge[],
   selectedId?: string
 ): { nodes: Node[]; edges: Edge[] } {
-  // 1) run your existing dagre layout to compute positions
   const g = new dagre.graphlib.Graph();
-  g.setGraph({ rankdir: "LR", ranksep: 50, nodesep: 30 });
+  g.setGraph({
+    rankdir: "TB",
+    ranksep: 100,
+    nodesep: 50,
+    align: "UL",
+  });
   g.setDefaultEdgeLabel(() => ({}));
 
   rawNodes.forEach((n) => {
