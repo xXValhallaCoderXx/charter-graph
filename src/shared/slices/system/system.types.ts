@@ -11,3 +11,6 @@ export interface Graph {
   nodes: System[];
   edges: SystemInterface[];
 }
+
+
+
