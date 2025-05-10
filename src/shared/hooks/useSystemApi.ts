@@ -5,6 +5,7 @@ import {
   updateSystem,
   fetchDistinctCategories,
   deleteSystem,
+  fetchGraph,
   fetchDescendants,
   createSystem,
   createSystemAndInterface,
@@ -12,6 +13,16 @@ import {
 import type { System } from "@/shared/slices/system/system.types";
 import { SystemInterface } from "@/shared/slices/interface/interface.types";
 import { QUERY_KEYS } from "@/shared/slices/query-keys";
+
+export function useFetchGraph() {
+  return useQuery({
+    queryKey: ["graph-data"],
+    queryFn: () => fetchGraph(),
+    staleTime: 30_000,
+  });
+}
+
+
 
 
 export function useFetchSystem(id: string) {

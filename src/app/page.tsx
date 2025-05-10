@@ -1,8 +1,8 @@
-'use client';
-import { useState, Suspense } from "react";
+"use client";
+import { Suspense } from "react";
 import dynamic from "next/dynamic";
 import { ToastContainer, Slide } from "react-toastify";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import { AppHeader } from "@/shared/components/organisms";
 import { Typography, Card } from "@/shared/components/atoms";
 
@@ -21,10 +21,8 @@ const InterfaceDetails = dynamic(
 );
 
 export default function Home() {
-  const [qc] = useState(() => new QueryClient());
-
   return (
-    <QueryClientProvider client={qc}>
+    <div>
       <div>
         <AppHeader />
         <div className="flex flex-col lg:flex-row p-10 lg:p-6 gap-10 lg:gap-8 ">
@@ -68,6 +66,6 @@ export default function Home() {
         autoClose={2000}
         transition={Slide}
       />
-    </QueryClientProvider>
+    </div>
   );
 }
