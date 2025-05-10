@@ -31,7 +31,7 @@ export default function Home() {
           <section
             id="flow-diagram "
             style={{ height: "calc(100vh - 110px)" }}
-            className="w-full lg:w-2/3 2xl:w-5/6 flex gap-4 flex-col"
+            className="w-full lg:w-2/3 2xl:w-4/6 flex gap-4 flex-col"
           >
             <div className="flex justify-between items-center">
               <Typography variant="h3">Graph Diagram</Typography>
@@ -45,7 +45,7 @@ export default function Home() {
           <section
             id="system-details"
             style={{ height: "calc(100vh - 110px)" }}
-            className="w-full lg:w-1/3 2xl:w-1/5 flex flex-col gap-10 lg:gap-6 lg:pt-12"
+            className="w-full lg:w-1/3  2xl:w-2/6 flex flex-col gap-10 lg:gap-6 lg:pt-12"
           >
             <Card className="min-h-[600px] md:min-h-0">
               <Suspense fallback={<div className="p-4">Loading system…</div>}>
